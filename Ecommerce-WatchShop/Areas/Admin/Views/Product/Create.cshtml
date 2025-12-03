@@ -1,0 +1,146 @@
+﻿@model Ecommerce_WatchShop.Models.SanPham
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+        <h1 class="app-page-title"><i class="bi bi-box me-2"></i>Thêm sản phẩm mới</h1>
+
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="app-card app-card-settings shadow-sm p-4">
+                    <div class="app-card-body">
+                        <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="TenSanPham" class="form-label"><i class="bi bi-tag me-2"></i>Tên sản phẩm</label>
+                                        <input asp-for="TenSanPham" class="form-control" placeholder="Nhập tên sản phẩm" required />
+                                        <span asp-validation-for="TenSanPham" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Gia" class="form-label"><i class="bi bi-currency-dollar me-2"></i>Giá gốc</label>
+                                        <input asp-for="Gia" class="form-control" type="number" step="0.01" placeholder="Nhập giá gốc sản phẩm" required />
+                                        <span asp-validation-for="Gia" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="GiaKhuyenMai" class="form-label"><i class="bi bi-tag me-2"></i>Giá khuyến mãi</label>
+                                        <input asp-for="GiaKhuyenMai" class="form-control" type="number" step="0.01" placeholder="Nhập giá khuyến mãi (tùy chọn)" onchange="calculateDiscountPercentage()" />
+                                        <span asp-validation-for="GiaKhuyenMai" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="PhanTramKhuyenMai" class="form-label"><i class="bi bi-percent me-2"></i>Phần trăm khuyến mãi (%)</label>
+                                        <input asp-for="PhanTramKhuyenMai" class="form-control" type="number" min="0" max="100" placeholder="Sẽ được tính tự động" readonly />
+                                        <span asp-validation-for="PhanTramKhuyenMai" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="MaThuongHieu" class="form-label"><i class="bi bi-shop me-2"></i>Thương hiệu</label>
+                                        <select asp-for="MaThuongHieu" class="form-select" asp-items="ViewBag.ThuongHieuId" required>
+                                            <option value="">Chọn thương hiệu</option>
+                                        </select>
+                                        <span asp-validation-for="MaThuongHieu" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="MaDanhMuc" class="form-label"><i class="bi bi-list-ul me-2"></i>Danh mục</label>
+                                        <select asp-for="MaDanhMuc" class="form-select" asp-items="ViewBag.DanhMucId" required>
+                                            <option value="">Chọn danh mục</option>
+                                        </select>
+                                        <span asp-validation-for="MaDanhMuc" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="GioiTinh" class="form-label"><i class="bi bi-gender-ambiguous me-2"></i>Giới tính</label>
+                                        <select asp-for="GioiTinh" class="form-select" required>
+                                            <option value="">Chọn giới tính</option>
+                                            <option value="Nam">Nam</option>
+                                            <option value="Nữ">Nữ</option>
+                                            <option value="Unisex">Unisex</option>
+                                        </select>
+                                        <span asp-validation-for="GioiTinh" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="MoTa" class="form-label"><i class="bi bi-textarea me-2"></i>Mô tả</label>
+                                        <textarea asp-for="MoTa" class="form-control" rows="5" placeholder="Nhập mô tả sản phẩm"></textarea>
+                                        <span asp-validation-for="MoTa" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="MoTaNgan" class="form-label"><i class="bi bi-text-paragraph me-2"></i>Mô tả ngắn</label>
+                                        <textarea asp-for="MoTaNgan" class="form-control" rows="3" placeholder="Nhập mô tả ngắn"></textarea>
+                                        <span asp-validation-for="MoTaNgan" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="ThongSoKyThuat" class="form-label"><i class="bi bi-tools me-2"></i>Thông số kỹ thuật</label>
+                                        <textarea asp-for="ThongSoKyThuat" class="form-control" rows="4" placeholder="Nhập thông số kỹ thuật"></textarea>
+                                        <span asp-validation-for="ThongSoKyThuat" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="HinhAnh" class="form-label"><i class="bi bi-image me-2"></i>Hình ảnh sản phẩm</label>
+                                        <input type="file" name="imageFile" class="form-control" accept="image/*" required />
+                                        <span class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="SoLuong" class="form-label"><i class="bi bi-boxes me-2"></i>Số lượng</label>
+                                        <input asp-for="SoLuong" class="form-control" type="number" placeholder="Nhập số lượng" required />
+                                        <span asp-validation-for="SoLuong" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn app-btn-primary me-2"><i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm</button>
+                                <a asp-action="Index" class="btn app-btn-secondary"><i class="bi bi-arrow-left me-2"></i>Quay lại</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            (function () {
+                'use strict'
+                var forms = document.querySelectorAll('.needs-validation')
+                Array.prototype.slice.call(forms)
+                    .forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+            })();
+
+            function calculateDiscountPercentage() {
+                var originalPrice = parseFloat(document.querySelector('input[name="Gia"]').value) || 0;
+                var promotionPrice = parseFloat(document.querySelector('input[name="GiaKhuyenMai"]').value) || 0;
+
+                if (originalPrice > 0 && promotionPrice > 0 && promotionPrice < originalPrice) {
+                    var discountPercent = ((originalPrice - promotionPrice) / originalPrice) * 100;
+                    document.querySelector('input[name="PhanTramKhuyenMai"]').value = discountPercent.toFixed(2);
+                } else {
+                    document.querySelector('input[name="PhanTramKhuyenMai"]').value = '';
+                }
+            }
+
+            // Tính phần trăm khuyến mãi khi giá gốc thay đổi
+            document.querySelector('input[name="Gia"]').addEventListener('input', calculateDiscountPercentage);
+        </script>
+    }

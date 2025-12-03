@@ -1,0 +1,25 @@
+﻿@model Ecommerce_WatchShop.Models.ThuongHieu
+@{
+    ViewData["Title"] = "Chi tiết thương hiệu";
+}
+
+<div class="container-xl">
+    <h1 class="app-page-title mb-4">Chi tiết thương hiệu</h1>
+    <div class="app-card shadow-sm mb-5">
+        <div class="app-card-body">
+            <div class="mb-3">
+                <strong>ID:</strong> @Model.MaThuongHieu
+            </div>
+            <div class="mb-3">
+                <strong>Tên thương hiệu:</strong> @Model.TenThuongHieu
+            </div>
+            <div class="mb-3">
+                <strong>Slug:</strong> @Model.Slug
+            </div>
+            <div class="mb-3">
+                <strong>Số sản phẩm:</strong> @Model.SanPhams.Count
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </div>
+</div>

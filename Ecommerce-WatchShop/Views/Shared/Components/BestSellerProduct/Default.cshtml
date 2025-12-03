@@ -1,0 +1,130 @@
+@using System.Globalization
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.10/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<style>
+    .discounted-price {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .original-price {
+        font-size: 0.9rem;
+        opacity: 0.6;
+    }
+
+    .discount-percent {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .image-link {
+        display: block;
+        position: relative;
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px; /* Hoặc right: 8px; nếu muốn góc phải */
+        background-color: red;
+        color: white;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 2;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+</style>
+<div class="product-wrapper" data-aos="fade-up" data-aos-delay="0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="product-slider-default-1row default-slider-nav-arrow">
+                    <!-- Slider main container -->
+                    <div class="swiper-container product-default-slider-4grid-1row">
+                        <!-- Additional required wrapper -->
+                        <div class="swiper-wrapper">
+                            <!-- End Product Default Single Item -->
+                            <!-- Start Product Default Single Item -->
+                            @foreach (var item in ViewBag.BestSellerProduct)
+                            {
+                                <div class="product-default-single-item product-color--pink swiper-slide">
+
+                                    <div class="image-box">
+                                        <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug" class="image-link">
+                                            <img src="@Url.Content(item.Image ?? "/images/default-image.jpg")" alt="@item.ProductName"
+                                                 onerror="this.src='/images/default-image.jpg'; this.onerror=null;">
+                                        </a>
+                                        <div class="action-link">
+                                            <div class="action-link-left">
+                                                <a class="btn add-to-cart" data-slug="@item.Slug" data-quantity="1" data-bs-toggle="modal"
+                                                   data-bs-target="#modalAddcart">Thêm vào giỏ</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="content-left">
+                                            <h6 class="title">
+                                                <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug">
+                                                    @item.ProductName
+                                                </a>
+                                            </h6>
+                                            <div class="sold-info mt-1">
+                                                <small class="text-muted">
+                                                    Đã bán: @item.SoldQuantity
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="content-right">
+                                            <span class="price text-danger fw-bold">
+                                                @item.Price.ToString("N0", new CultureInfo("vi-VN"))₫
+                                            </span>
+                                            <div class="mt-1">
+                                                <span class="badge bg-warning text-dark">
+                                                    Bán chạy
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            }
+                            <!-- If we need navigation buttons -->
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const discountedEls = document.querySelectorAll('.discounted-price');
+
+        discountedEls.forEach(el => {
+            const original = parseFloat(el.dataset.original);
+            const sale = parseFloat(el.dataset.sale);
+            const percent = Math.round((original - sale) / original * 100);
+
+            // Gán phần trăm vào badge trong .content-right
+            const contentRight = el.closest('.content-right');
+            const percentBadge = contentRight?.querySelector('.discount-percent');
+            if (percentBadge && !isNaN(percent) && percent > 0) {
+                percentBadge.textContent = `-${percent}%`;
+            }
+
+            // Tìm phần tử .image-link gần nhất và chèn vào badge ảnh
+            const imageLink = contentRight?.previousElementSibling;
+            const imgBadge = imageLink?.querySelector('.discount-badge');
+            if (imgBadge && !isNaN(percent) && percent > 0) {
+                imgBadge.textContent = `-${percent}%`;
+            }
+        });
+    });
+</script>

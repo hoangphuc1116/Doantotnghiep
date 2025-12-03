@@ -1,0 +1,650 @@
+﻿@{
+    ViewData["Title"] = "Sản phẩm";
+}
+@model Ecommerce_WatchShop.Models.ViewModels.PagedProductListVM
+@using System.Globalization
+
+<!-- ...:::: Start Breadcrumb Section:::... -->
+<div class="breadcrumb-section breadcrumb-bg-color--golden">
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="breadcrumb-title">Sản Phẩm</h3>
+                    <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden">
+                        <nav aria-label="breadcrumb">
+                            <ul>
+                                <li><a asp-controller="Home" asp-action="Index">Trang Chủ</a></li>
+                                <li class="active" aria-current="page">Sản Phẩm</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Banner Section -->
+@if (ViewBag.Banners != null)
+{
+    @await Html.PartialAsync("_BannerSlider", ViewBag.Banners as List<Slider>)
+}
+
+<!-- ...:::: Start Shop Section:::... -->
+<div class="shop-section py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Filter -->
+            <div class="col-lg-3 mb-4">
+                <div class="sidebar-wrapper">
+                    <form method="get" asp-controller="Product" asp-action="Index">
+                        <!-- Search Box -->
+                        <div class="sidebar-single-widget mb-4">
+                            <div class="sidebar-widget-header">
+                                <h6 class="sidebar-title">Tìm kiếm</h6>
+                            </div>
+                            <div class="sidebar-widget-content">
+                                <div class="search-box d-flex">
+                                    <input class="form-control search-input" type="search" placeholder="Tìm kiếm sản phẩm..." name="search" value="@ViewData["Search"]">
+                                    <button class="btn btn-search" type="submit">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @await Component.InvokeAsync("MenuBrand")
+                        @await Component.InvokeAsync("MenuCategory")
+
+                        <!-- Gender Filter -->
+                        <div class="sidebar-single-widget mb-4">
+                            <div class="sidebar-widget-header">
+                                <h6 class="sidebar-title">Giới tính</h6>
+                            </div>
+                            <div class="sidebar-widget-content">
+                                <div class="filter-options">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" name="gender" value="1" id="genderMale">
+                                        <label class="form-check-label" for="genderMale">Nam</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" name="gender" value="2" id="genderFemale">
+                                        <label class="form-check-label" for="genderFemale">Nữ</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="gender" value="3" id="genderUnisex">
+                                        <label class="form-check-label" for="genderUnisex">Unisex</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Filter -->
+                        <div class="sidebar-single-widget mb-4">
+                            <div class="sidebar-widget-header">
+                                <h6 class="sidebar-title">Lọc theo giá</h6>
+                            </div>
+                            <div class="sidebar-widget-content">
+                                <div class="price-filter">
+                                    <div class="mb-3">
+                                        <label for="minPrice" class="form-label">Giá tối thiểu:</label>
+                                        <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="0" step="100000" min="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="maxPrice" class="form-label">Giá tối đa:</label>
+                                        <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="50000000" step="100000" min="0">
+                                    </div>
+                                    <button type="submit" class="btn btn-golden w-100">
+                                        <i class="fa fa-filter me-2"></i>Lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="col-lg-9">
+                <div class="products-header mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="products-count">Hiển thị @Model.SanPhams.Count() sản phẩm</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="sort-options d-flex justify-content-end">
+                                <select class="form-select sort-select" style="width: auto;">
+                                    <option>Sắp xếp theo</option>
+                                    <option value="price-asc">Giá tăng dần</option>
+                                    <option value="price-desc">Giá giảm dần</option>
+                                    <option value="name-asc">Tên A-Z</option>
+                                    <option value="name-desc">Tên Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="products-grid">
+                    <div class="row g-4">
+                        @foreach (var item in Model.SanPhams)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="product-card h-100">
+                                    <div class="product-image-wrapper">
+                                        <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug" class="product-image-link">
+                                            <img class="product-image" src="@Url.Content(item.Image)" alt="@item.ProductName" onerror="this.src='/images/default-image.jpg';">
+                                        </a>
+                                        @if (item.PromotionPrice.HasValue && item.DiscountPercent.HasValue)
+                                        {
+                                            <span class="discount-badge">-@item.DiscountPercent%</span>
+                                        }
+                                        <div class="product-actions">
+                                            <button class="btn btn-action add-to-cart" data-slug="@item.Slug" data-quantity="1" title="Thêm vào giỏ">
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </button>
+                                            <button class="btn btn-action" title="Xem nhanh">
+                                                <i class="fa fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-action" title="Yêu thích">
+                                                <i class="fa fa-heart-o"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <div class="product-rating mb-2">
+                                            <div class="rating-stars">
+                                                @{
+                                                    bool hasHalfStar = (item.ProductRating - (int)item.ProductRating) >= 0.4;
+                                                }
+                                                @if (item.ProductRating == 0)
+                                                {
+                                                    for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="fa fa-star text-muted"></i>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @for (int i = 1; i <= (int)item.ProductRating; i++)
+                                                    {
+                                                        <i class="fa fa-star text-warning"></i>
+                                                    }
+                                                    @if ((int)item.ProductRating < 5 && hasHalfStar)
+                                                    {
+                                                        <i class="fa fa-star-half-o text-warning"></i>
+                                                    }
+                                                    @for (int i = (int)item.ProductRating + (hasHalfStar ? 1 : 0); i < 5; i++)
+                                                    {
+                                                        <i class="fa fa-star text-muted"></i>
+                                                    }
+                                                }
+                                            </div>
+                                            <span class="rating-count">(@item.TotalRating)</span>
+                                        </div>
+                                        <h6 class="product-name">
+                                            <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug">
+                                                @item.ProductName
+                                            </a>
+                                        </h6>
+                                        <div class="product-price">
+                                            @if (item.PromotionPrice.HasValue && item.DiscountPercent.HasValue)
+                                            {
+                                                <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", item.PromotionPrice)</span>
+                                                <span class="original-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", item.Price)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", item.Price)</span>
+                                            }
+                                        </div>
+                                        <p class="product-description">@item.ShortDescription</p>
+                                        <button class="btn btn-primary add-to-cart-btn w-100" data-slug="@item.Slug" data-quantity="1">
+                                            <i class="fa fa-shopping-cart me-2"></i>Thêm vào giỏ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pagination-wrapper mt-5">
+                        <nav aria-label="Product pagination">
+                            <ul class="pagination justify-content-center">
+                                @if (Model.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage - 1 })">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                }
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                                    </li>
+                                }
+                                @if (Model.CurrentPage < Model.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage + 1 })">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Initialize banner slider
+        var bannerSlider = new Swiper('.banner-slider-active', {
+            slidesPerView: 1,
+            effect: "fade",
+            speed: 1500,
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Add to cart functionality
+            $('.add-to-cart, .add-to-cart-btn').click(function(e) {
+                e.preventDefault();
+                var $this = $(this);
+                var slug = $this.data('slug');
+                var quantity = $this.data('quantity') || 1;
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: { slug: slug, quantity: quantity },
+                    success: function(result) {
+                        if (result.success) {
+                            Toastify({
+                                text: result.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#28a745" }
+                            }).showToast();
+                        } else {
+                            Toastify({
+                                text: result.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#dc3545" }
+                            }).showToast();
+                        }
+                    },
+                    error: function() {
+                        Toastify({
+                            text: 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.',
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: "#dc3545" }
+                        }).showToast();
+                    }
+                });
+            });
+
+            // Format price inputs
+            $('#minPrice, #maxPrice').on('input', function() {
+                var value = $(this).val().replace(/[^0-9]/g, '');
+                if (value) {
+                    $(this).val(parseInt(value).toLocaleString('vi-VN'));
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .sidebar-wrapper {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .sidebar-single-widget {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 20px;
+    }
+
+        .sidebar-single-widget:last-child {
+            border-bottom: none;
+        }
+
+    .sidebar-widget-header {
+        margin-bottom: 15px;
+    }
+
+    .sidebar-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-input {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 50px 12px 16px;
+        transition: all 0.3s;
+    }
+
+        .search-input:focus {
+            border-color: #b19361;
+            box-shadow: 0 0 0 0.2rem rgba(177, 147, 97, 0.25);
+        }
+
+    .btn-search {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        bottom: 5px;
+        background: #b19361;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        width: 40px;
+        transition: all 0.3s;
+    }
+
+        .btn-search:hover {
+            background: #9d8052;
+        }
+
+    .filter-options .form-check {
+        padding-left: 0;
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+    }
+
+    .form-check-label {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .btn-golden {
+        background: linear-gradient(45deg, #b19361, #d4af37);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-golden:hover {
+            background: linear-gradient(45deg, #9d8052, #b8941f);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(177, 147, 97, 0.3);
+        }
+
+    .products-header {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .products-count {
+        color: #666;
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .sort-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 8px 16px;
+        min-width: 180px;
+    }
+
+    .product-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+    }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 280px;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.1);
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .product-actions {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .product-card:hover .product-actions {
+        opacity: 1;
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+        .btn-action:hover {
+            background: #b19361;
+            color: white;
+            transform: scale(1.1);
+        }
+
+    .product-info {
+        padding: 25px 20px;
+    }
+
+    .rating-stars {
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+        .rating-stars i {
+            font-size: 14px;
+            margin-right: 2px;
+        }
+
+    .rating-count {
+        color: #888;
+        font-size: 12px;
+    }
+
+    .product-name {
+        margin: 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+        .product-name a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+            .product-name a:hover {
+                color: #b19361;
+            }
+
+    .product-price {
+        margin-bottom: 12px;
+    }
+
+    .current-price {
+        color: #e74c3c;
+        font-size: 18px;
+        font-weight: 700;
+        margin-right: 10px;
+    }
+
+    .original-price {
+        color: #999;
+        font-size: 14px;
+        text-decoration: line-through;
+    }
+
+    .product-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .add-to-cart-btn {
+        background: linear-gradient(45deg, #b19361, #d4af37);
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+        .add-to-cart-btn:hover {
+            background: linear-gradient(45deg, #9d8052, #b8941f);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(177, 147, 97, 0.3);
+        }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination .page-link {
+        color: #666;
+        border: 1px solid #e9ecef;
+        padding: 12px 16px;
+        margin: 0 4px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #b19361;
+        border-color: #b19361;
+        color: white;
+    }
+
+    .pagination .page-link:hover {
+        background: #f8f9fa;
+        border-color: #b19361;
+        color: #b19361;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .product-card
+
+    {
+        margin-bottom: 20px;
+    }
+
+    .products-header {
+        padding: 15px;
+    }
+
+        .products-header .row {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+    .sort-options {
+        justify-content: center !important;
+    }
+
+    }
+</style>

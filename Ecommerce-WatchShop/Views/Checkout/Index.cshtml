@@ -1,0 +1,291 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán";
+}
+@model Ecommerce_WatchShop.Models.ViewModels.CheckoutVM
+
+<div class="breadcrumb-section breadcrumb-bg-color--golden">
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="breadcrumb-title">Thanh Toán</h3>
+                    <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden">
+                        <nav aria-label="breadcrumb">
+                            <ul>
+                                <li><a asp-controller="Home" asp-action="Index">Trang Chủ</a></li>
+                                <li><a asp-controller="Cart" asp-action="Cart">Giỏ Hàng</a></li>
+                                <li class="active" aria-current="page">Thanh Toán</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="checkout-section">
+    <div class="container">
+        <div class="row">
+            @if (TempData["error"] != null)
+            {
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        @TempData["error"]
+                    </div>
+                </div>
+            }
+            @if (TempData["success"] != null)
+            {
+                <div class="col-12">
+                    <div class="alert alert-success">
+                        @TempData["success"]
+                    </div>
+                </div>
+            }
+
+            <div class="col-lg-6 col-md-6">
+                <div class="checkout-card">
+                    <h3 class="text-center mb-4">THÔNG TIN GIAO HÀNG</h3>
+
+                    <form method="post" asp-action="Checkout">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Họ Tên <span class="text-danger">*</span></label>
+                                    <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên">
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Số điện thoại <span class="text-danger">*</span></label>
+                                    <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại">
+                                    <span asp-validation-for="Phone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Email <span class="text-danger">*</span></label>
+                                    <input asp-for="Email" class="form-control" type="email" placeholder="Nhập email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Địa chỉ <span class="text-danger">*</span></label>
+                                    <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ giao hàng">
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Tỉnh/Thành phố</label>
+                                    <input asp-for="Province" class="form-control" placeholder="Tỉnh/TP">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Quận/Huyện</label>
+                                    <input asp-for="District" class="form-control" placeholder="Quận/Huyện">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Xã/Phường</label>
+                                    <input asp-for="Ward" class="form-control" placeholder="Xã/Phường">
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="mt-4 mb-3">Phương thức thanh toán</h4>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="COD" id="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                <br><small class="text-muted">Thanh toán bằng tiền mặt khi nhận hàng</small>
+                            </label>
+                        </div>
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="VNPAY" id="vnpay">
+                            <label class="form-check-label" for="vnpay">
+                                <strong>Thanh toán qua VNPAY</strong>
+                                <br><small class="text-muted">Thanh toán qua thẻ ngân hàng, QR code hoặc ví VNPAY</small>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-order btn-lg w-100 mt-4">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            <span>ĐẶT HÀNG NGAY</span>
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6">
+                <div class="checkout-card">
+                    <h3 class="text-center mb-4">ĐƠN HÀNG CỦA BẠN</h3>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Tổng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.CartItems != null)
+                            {
+                                var cartItems = (List<Ecommerce_WatchShop.Models.ViewModels.CartRequest>)ViewBag.CartItems;
+                                var subtotal = cartItems.Sum(item => item.Quantity * item.Price);
+                                var shippingFee = 30000;
+                                var total = subtotal + shippingFee;
+
+                                @foreach (var item in cartItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug" class="image-link">
+                                                    <img src="@Url.Content(item.Image ?? "/images/default-image.jpg")" alt="@item.ProductName"
+                                                         onerror="this.src='/images/default-image.jpg'; this.onerror=null;" class="product-image me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                </a>
+                                                <div>
+                                                    @item.ProductName <strong>× @item.Quantity</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@(((double)(item.Quantity * item.Price)).ToString("#,0")) VND</td>
+                                    </tr>
+                                }
+
+                                <tr>
+                                    <th>Tạm tính</th>
+                                    <td>@(((double)subtotal).ToString("#,0")) VND</td>
+                                </tr>
+                                <tr>
+                                    <th>Phí vận chuyển</th>
+                                    <td>@(((double)shippingFee).ToString("#,0")) VND</td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <th><strong>Tổng cộng</strong></th>
+                                    <td><strong>@(((double)total).ToString("#,0")) VND</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .checkout-section {
+            padding: 50px 0;
+            background: #f8f9fa;
+        }
+
+        .checkout-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+        }
+
+            .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            }
+
+        .btn-order {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 18px 30px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-order:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+                color: white;
+            }
+
+            .btn-order:active {
+                transform: translateY(0);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            }
+
+            .btn-order::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s ease;
+            }
+
+            .btn-order:hover::before {
+                left: 100%;
+            }
+
+            .btn-order i {
+                transition: transform 0.3s ease;
+            }
+
+            .btn-order:hover .fa-arrow-right {
+                transform: translateX(5px);
+            }
+
+            .btn-order:hover .fa-shopping-cart {
+                transform: scale(1.1);
+            }
+
+        .table th, .table td {
+            border-top: 1px solid #dee2e6;
+            padding: 12px;
+        }
+
+        .form-check {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .product-image {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+}

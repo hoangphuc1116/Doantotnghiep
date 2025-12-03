@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>Ecommerce_WatchShop</RootNamespace>
+        <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Areas\Admin\Data\**" />
+      <Compile Remove="Areas\Admin\Models\**" />
+      <Content Remove="Areas\Admin\Data\**" />
+      <Content Remove="Areas\Admin\Models\**" />
+      <EmbeddedResource Remove="Areas\Admin\Data\**" />
+      <EmbeddedResource Remove="Areas\Admin\Models\**" />
+      <None Remove="Areas\Admin\Data\**" />
+      <None Remove="Areas\Admin\Models\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MailKit" Version="4.13.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+      <PackageReference Include="MimeKit" Version="4.13.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\Validation\" />
+      <Folder Include="wwwroot\Images\logo\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\assets\css\.DS_Store" />
+      <None Include="wwwroot\assets\images\.DS_Store" />
+      <None Include="wwwroot\assets\images\users\.DS_Store" />
+      <None Include="wwwroot\assets\js\.DS_Store" />
+      <None Include="wwwroot\assets\scss\.DS_Store" />
+      <None Include="wwwroot\assets\scss\app\.DS_Store" />
+      <None Include="wwwroot\assets\scss\bootstrap\.DS_Store" />
+      <None Include="wwwroot\assets\scss\bootstrap\scss\.DS_Store" />
+      <None Include="wwwroot\assets\scss\bootstrap\scss\tests\.DS_Store" />
+    </ItemGroup>
+
+    <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://json.schemastore.org/architectfx.json" /></VisualStudio></ProjectExtensions>
+
+</Project>

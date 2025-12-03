@@ -1,0 +1,188 @@
+﻿﻿@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fa fa-check-circle"></i> Đặt hàng thành công!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <strong>Cảm ơn bạn đã đặt hàng!</strong> Đơn hàng của bạn đã được ghi nhận và sẽ được xử lý sớm nhất.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Thông tin đơn hàng</h5>
+                            <p><strong>Mã đơn hàng:</strong> #DH@Model.MaHoaDon.ToString("D6")</p>
+                            <p><strong>Ngày đặt:</strong> @Model.NgayDatHang.ToString("dd/MM/yyyy HH:mm")</p>
+                            @if (ViewBag.DiscountPercent != null && (decimal)ViewBag.DiscountPercent > 0)
+                            {
+                                <p><strong>Tạm tính:</strong> @(((double)ViewBag.OriginalAmount).ToString("#,0")) VND</p>
+                                <p><strong>Giảm giá (@(ViewBag.DiscountPercent)%):</strong> <span class="text-success">-@(((double)ViewBag.DiscountAmount).ToString("#,0")) VND</span></p>
+                            }
+                            <p><strong>Tổng tiền:</strong> <span class="text-success fw-bold">@Model.TongTien.ToString("#,0") VND</span></p>
+                            <p>
+                                <strong>Trạng thái:</strong>
+                                @switch (Model.TrangThai)
+                                {
+                                    case 0:
+                                        <span class="badge bg-danger">Đã hủy</span>
+                                        break;
+                                    case 1:
+                                        <span class="badge bg-warning">Chờ xác nhận</span>
+                                        break;
+                                    case 2:
+                                        <span class="badge bg-info">Đang xử lý</span>
+                                        break;
+                                    case 3:
+                                        <span class="badge bg-primary">Đang giao</span>
+                                        break;
+                                    case 4:
+                                        <span class="badge bg-success">Đã giao</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">Không xác định</span>
+                                        break;
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Thông tin giao hàng</h5>
+                            <p><strong>Người nhận:</strong> @Model.HoTen</p>
+                            <p><strong>Số điện thoại:</strong> @Model.SoDienThoai</p>
+                            <p><strong>Email:</strong> @Model.Email</p>
+                            <p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+                            @if (!string.IsNullOrEmpty(Model.Xa) || !string.IsNullOrEmpty(Model.Huyen) || !string.IsNullOrEmpty(Model.Tinh))
+                            {
+                                <p><strong>Khu vực:</strong> @Model.Xa, @Model.Huyen, @Model.Tinh</p>
+                            }
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>Chi tiết đơn hàng</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ChiTietHoaDons)
+                                {
+                                    <tr>
+                                        <td>@item.SanPham.TenSanPham</td>
+                                        <td>@item.SoLuong</td>
+                                        <td>@item.Gia.ToString("#,0") VND</td>
+                                        <td>@item.TongTien.ToString("#,0") VND</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Phí giao hàng:</strong></td>
+                                    <td><strong>30,000 VND</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                    <td><strong class="text-success">@Model.TongTien.ToString("#,0") VND</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                            <i class="fa fa-home"></i> Về trang chủ
+                        </a>
+
+                        @if (ViewBag.CanCancel != null && (bool)ViewBag.CanCancel)
+                        {
+                            <button type="button" class="btn btn-danger" onclick="cancelOrder(@Model.MaHoaDon)">
+                                <i class="fa fa-times"></i> Hủy đơn hàng
+                            </button>
+                        }
+                        else if (Model.TrangThai != 0 && Model.TrangThai != 4 && !Model.DaYeuCauHuy)
+                        {
+                            <button type="button" class="btn btn-warning" onclick="requestCancelOrder(@Model.MaHoaDon)">
+                                <i class="fa fa-exclamation-triangle"></i> Yêu cầu hủy đơn hàng
+                            </button>
+                        }
+                        else if (Model.DaYeuCauHuy)
+                        {
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i> Bạn đã gửi yêu cầu hủy đơn hàng này. Admin sẽ xem xét và phản hồi sớm nhất.
+                                <br><strong>Lý do:</strong> @(string.IsNullOrEmpty(Model.YeuCauHuy) ? "Không có lý do cụ thể" : Model.YeuCauHuy)
+                                <br><strong>Ngày yêu cầu:</strong> @Model.NgayYeuCauHuy?.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId) {
+            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+                $.ajax({
+                    url: '@Url.Action("CancelOrder", "Checkout")',
+                    type: 'POST',
+                    data: { orderId: orderId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi hủy đơn hàng');
+                    }
+                });
+            }
+        }
+
+        function requestCancelOrder(orderId) {
+            const reason = prompt('Vui lòng nhập lý do hủy đơn hàng:');
+            if (reason !== null) {
+                $.ajax({
+                    url: '@Url.Action("RequestCancelOrder", "Checkout")',
+                    type: 'POST',
+                    data: JSON.stringify({ orderId: orderId, reason: reason }),
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi gửi yêu cầu hủy đơn hàng');
+                    }
+                });
+            }
+        }
+    </script>
+}

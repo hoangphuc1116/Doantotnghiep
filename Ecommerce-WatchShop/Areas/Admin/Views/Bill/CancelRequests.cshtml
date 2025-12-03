@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Ecommerce_WatchShop.Models.HoaDon>
+
+@{
+    ViewData["Title"] = "Yêu cầu hủy đơn hàng";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách yêu cầu hủy đơn hàng</h3>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Ngày yêu cầu hủy</th>
+                                        <th>Lý do</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>#DH@item.MaHoaDon.ToString("D6")</td>
+                                            <td>@item.KhachHang?.HoTen</td>
+                                            <td>@item.NgayDatHang.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@item.NgayYeuCauHuy?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@(string.IsNullOrEmpty(item.YeuCauHuy) ? "Không có lý do cụ thể" : item.YeuCauHuy)</td>
+                                            <td>@String.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.TongTien)</td>
+                                            <td>
+                                                <span class="badge badge-@(GetStatusBadgeClass(item.TrangThai))">
+                                                    @GetStatusText(item.TrangThai)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Chi tiết
+                                                </a>
+                                                <form method="post" asp-action="ProcessCancelRequest" style="display: inline;">
+                                                    <input type="hidden" name="id" value="@item.MaHoaDon" />
+                                                    <input type="hidden" name="approve" value="true" />
+                                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Bạn có chắc muốn chấp nhận yêu cầu hủy đơn hàng này?')">
+                                                        <i class="fas fa-check"></i> Chấp nhận
+                                                    </button>
+                                                </form>
+                                                <form method="post" asp-action="ProcessCancelRequest" style="display: inline;">
+                                                    <input type="hidden" name="id" value="@item.MaHoaDon" />
+                                                    <input type="hidden" name="approve" value="false" />
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn từ chối yêu cầu hủy đơn hàng này?')">
+                                                        <i class="fas fa-times"></i> Từ chối
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Không có yêu cầu hủy đơn hàng nào.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(int status)
+    {
+        return status switch
+        {
+            0 => "secondary",
+            1 => "warning",
+            2 => "info",
+            3 => "primary",
+            4 => "success",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusText(int status)
+    {
+        return status switch
+        {
+            0 => "Đã hủy",
+            1 => "Chờ xác nhận",
+            2 => "Đã xác nhận",
+            3 => "Đang xử lý",
+            4 => "Hoàn thành",
+            _ => "Không xác định"
+        };
+    }
+}

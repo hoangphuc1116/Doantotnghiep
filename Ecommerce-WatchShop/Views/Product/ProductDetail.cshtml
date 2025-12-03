@@ -1,0 +1,1078 @@
+﻿@model Ecommerce_WatchShop.Models.ViewModels.ProductDetailVM
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<!-- ...:::: Start Breadcrumb Section:::... -->
+<div class="breadcrumb-section breadcrumb-bg-color--golden">
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="breadcrumb-title">CHI TIẾT SẢN PHẨM</h3>
+                    <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden">
+                        <nav aria-label="breadcrumb">
+                            <ul>
+                                <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                                <li><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
+                                <li class="active" aria-current="page">@Model.SanPham.TenSanPham</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Product Details Section -->
+<div class="product-details-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 col-lg-6 mb-4">
+                <div class="product-gallery">
+                    <!-- Main Image -->
+                    <div class="main-image-container">
+                        <div class="main-image">
+                            <img id="mainProductImage" src="@Url.Content(Model.SanPham.HinhAnh ?? "/images/default-image.jpg")" alt="@Model.SanPham.TenSanPham" onerror="this.src='/images/default-image.jpg';" />
+                            @if (Model.SanPham.GiaKhuyenMai.HasValue && Model.SanPham.PhanTramKhuyenMai.HasValue)
+                            {
+                                <span class="product-badge">-@Model.SanPham.PhanTramKhuyenMai%</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Thumbnail Images -->
+                    <div class="thumbnail-container">
+                        <div class="thumbnail-wrapper">
+                            <div class="thumbnail-item active">
+                                <img src="@Url.Content(Model.SanPham.HinhAnh ?? "/images/default-image.jpg")" alt="@Model.SanPham.TenSanPham" onerror="this.src='/images/default-image.jpg';" />
+                            </div>
+                            @foreach (var img in Model.SanPham.HinhAnhSanPhams)
+                            {
+                                <div class="thumbnail-item">
+                                    <img src="@Url.Content(img.HinhAnh ?? "/images/default-image.jpg")" alt="@Model.SanPham.TenSanPham" onerror="this.src='/images/default-image.jpg';" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-lg-6">
+                <div class="product-details-info">
+                    <div class="product-header">
+                        <h1 class="product-title">@Model.SanPham.TenSanPham</h1>
+
+                        <div class="product-meta">
+                            <div class="rating-section">
+                                <div class="rating-stars">
+                                    @{
+                                        bool hasHalfStar = (Model.ProductRating - (int)Model.ProductRating) >= 0.4;
+                                    }
+                                    @if (Model.ProductRating == 0)
+                                    {
+                                        for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fa fa-star text-muted"></i>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @for (int i = 1; i <= (int)Model.ProductRating; i++)
+                                        {
+                                            <i class="fa fa-star text-warning"></i>
+                                        }
+                                        @if ((int)Model.ProductRating < 5 && hasHalfStar)
+                                        {
+                                            <i class="fa fa-star-half-o text-warning"></i>
+                                        }
+                                        @for (int i = (int)Model.ProductRating + (hasHalfStar ? 1 : 0); i < 5; i++)
+                                        {
+                                            <i class="fa fa-star text-muted"></i>
+                                        }
+                                    }
+                                </div>
+                                <span class="rating-text">(@Model.TotalRating đánh giá)</span>
+                                <span class="view-count">@Model.SanPham.LuotXem lượt xem</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="price-section">
+                        @if (Model.SanPham.GiaKhuyenMai.HasValue && Model.SanPham.PhanTramKhuyenMai.HasValue)
+                        {
+                            <div class="price-with-discount">
+                                <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", Model.SanPham.GiaKhuyenMai)</span>
+                                <span class="original-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", Model.SanPham.Gia)</span>
+                                <span class="save-amount">Tiết kiệm: @String.Format(new CultureInfo("vi-VN"), "{0:C}", Model.SanPham.Gia - Model.SanPham.GiaKhuyenMai)</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", Model.SanPham.Gia)</span>
+                        }
+                    </div>
+
+                    <div class="product-description">
+                        <p>@(Model.SanPham.MoTaNgan ?? "Chưa có mô tả")</p>
+                    </div>
+
+                    <div class="product-availability">
+                        <div class="stock-status">
+                            @if (Model.SanPham.SoLuong == 0)
+                            {
+                                <span class="out-of-stock">
+                                    <i class="fa fa-times-circle"></i>
+                                    Hết hàng
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="in-stock">
+                                    <i class="fa fa-check-circle"></i>
+                                    Còn hàng (@Model.SanPham.SoLuong sản phẩm)
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <div class="quantity-selector">
+                            <label for="quantity_input">Số lượng:</label>
+                            <div class="quantity-controls">
+                                <button type="button" class="qty-btn minus" onclick="decreaseQuantity()">-</button>
+                                <input id="quantity_input" min="1" max="@Model.SanPham.SoLuong" value="1" type="number" readonly>
+                                <button type="button" class="qty-btn plus" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button data-slug="@Model.SanPham.Slug" class="btn btn-primary add-to-cart-btn" type="button">
+                                <i class="fa fa-shopping-cart"></i>
+                                Thêm vào giỏ hàng
+                            </button>
+                            <button class="btn btn-secondary add-to-wishlist" data-id="@Model.SanPham.MaSanPham">
+                                <i class="fa fa-heart-o"></i>
+                                Yêu thích
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-features">
+                        <div class="feature-item">
+                            <i class="fa fa-truck"></i>
+                            <span>Miễn phí vận chuyển cho đơn hàng trên 500k</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fa fa-refresh"></i>
+                            <span>Đổi trả trong 30 ngày</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fa fa-shield"></i>
+                            <span>Bảo hành chính hãng</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Product Content Tab Section -->
+<div class="product-tabs-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="product-tabs">
+                    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                                Mô tả sản phẩm
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="specifications-tab" data-bs-toggle="tab" data-bs-target="#specifications" type="button" role="tab">
+                                Thông số kỹ thuật
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                Đánh giá (@Model.TotalRating)
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="productTabsContent">
+                        <div class="tab-pane fade show active" id="description" role="tabpanel">
+                            <div class="tab-content-wrapper">
+                                <div class="description-content">
+                                    <p>@(Model.SanPham.MoTa ?? "Chưa có mô tả chi tiết")</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="specifications" role="tabpanel">
+                            <div class="tab-content-wrapper">
+                                <div class="specifications-content">
+                                    @Html.Raw(Model.SanPham.ThongSoKyThuat ?? "Chưa có thông số kỹ thuật")
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            <div class="tab-content-wrapper">
+                                <div class="reviews-section">
+                                    <div class="reviews-list">
+                                        @if (Model.Comments.Any())
+                                        {
+                                            @foreach (var comment in Model.Comments)
+                                            {
+                                                <div class="review-item">
+                                                    <div class="review-header">
+                                                        <div class="reviewer-info">
+                                                            <h6 class="reviewer-name">@comment.CustomerName</h6>
+                                                            <div class="review-rating">
+                                                                @for (int i = 1; i <= 5; i++)
+                                                                {
+                                                                    <i class="fa fa-star @(i <= comment.Rating ? "text-warning" : "text-muted")"></i>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="review-date">
+                                                            <small>@(comment.CreatedAt?.ToString("dd/MM/yyyy") ?? "")</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="review-content">
+                                                        <p>@comment.Content</p>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="no-reviews">
+                                                <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="add-review-section">
+                                        <h5>Thêm đánh giá của bạn</h5>
+                                        @if (!User.Identity.IsAuthenticated)
+                                        {
+                                            <div class="alert alert-warning">
+                                                <i class="fa fa-info-circle"></i>
+                                                Bạn cần đăng nhập để đánh giá sản phẩm
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="AddReview" asp-route-id="@Model.SanPham.MaSanPham" method="post" class="review-form">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="comment-rating">Đánh giá của bạn *</label>
+                                                            <select id="comment-rating" name="rating" class="form-control" required>
+                                                                <option value="">Chọn số sao</option>
+                                                                <option value="5">5 sao - Tuyệt vời</option>
+                                                                <option value="4">4 sao - Tốt</option>
+                                                                <option value="3">3 sao - Bình thường</option>
+                                                                <option value="2">2 sao - Không tốt</option>
+                                                                <option value="1">1 sao - Tệ</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label for="comment-review-text">Nội dung đánh giá *</label>
+                                                            <textarea id="comment-review-text" name="content" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <button class="btn btn-primary" type="submit">
+                                                            <i class="fa fa-paper-plane"></i>
+                                                            Gửi đánh giá
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Related Products Section -->
+<div class="related-products-section py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h3>Sản phẩm tương tự</h3>
+            <p>Khám phá những sản phẩm khác bạn có thể quan tâm</p>
+        </div>
+
+        <div class="row">
+            @foreach (var product in Model.RelatedProducts.Take(4))
+            {
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="related-product-card">
+                        <div class="product-image">
+                            <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@product.Slug">
+                                <img src="@Url.Content(product.HinhAnh ?? "/images/default-image.jpg")" alt="@product.TenSanPham" onerror="this.src='/images/default-image.jpg';" />
+                            </a>
+                            @if (product.GiaKhuyenMai.HasValue && product.PhanTramKhuyenMai.HasValue)
+                            {
+                                <span class="discount-badge">-@product.PhanTramKhuyenMai%</span>
+                            }
+                        </div>
+                        <div class="product-info">
+                            <h6 class="product-name">
+                                <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@product.Slug">
+                                    @product.TenSanPham
+                                </a>
+                            </h6>
+                            <div class="product-price">
+                                @if (product.GiaKhuyenMai.HasValue && product.PhanTramKhuyenMai.HasValue)
+                                {
+                                    <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", product.GiaKhuyenMai)</span>
+                                    <span class="original-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", product.Gia)</span>
+                                }
+                                else
+                                {
+                                    <span class="current-price">@String.Format(new CultureInfo("vi-VN"), "{0:C}", product.Gia)</span>
+                                }
+                            </div>
+                            <button class="btn btn-primary add-to-cart" data-slug="@product.Slug">
+                                <i class="fa fa-shopping-cart"></i>
+                                Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Thumbnail image click handler
+            $('.thumbnail-item').click(function() {
+                $('.thumbnail-item').removeClass('active');
+                $(this).addClass('active');
+
+                var newSrc = $(this).find('img').attr('src');
+                $('#mainProductImage').attr('src', newSrc);
+            });
+
+            // Add to wishlist
+            $('.add-to-wishlist').click(function (e) {
+                e.preventDefault();
+                var $this = $(this);
+                var productId = $this.data('id');
+                var $icon = $this.find('i');
+
+                $.ajax({
+                    url: '@Url.Action("AddToWishlist", "Product")',
+                    type: 'POST',
+                    data: { productId: productId },
+                    success: function (response) {
+                        if (response.success) {
+                            Toastify({
+                                text: response.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#28a745" }
+                            }).showToast();
+
+                            if ($icon.hasClass('fa-heart-o')) {
+                                $icon.removeClass('fa-heart-o').addClass('fa-heart');
+                            } else {
+                                $icon.removeClass('fa-heart').addClass('fa-heart-o');
+                            }
+                        } else {
+                            Toastify({
+                                text: response.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#dc3545" }
+                            }).showToast();
+                        }
+                    },
+                    error: function () {
+                        Toastify({
+                            text: 'Đã xảy ra lỗi khi thêm vào danh sách yêu thích.',
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: "#dc3545" }
+                        }).showToast();
+                    }
+                });
+            });
+
+            // Add to cart
+            $('.add-to-cart, .add-to-cart-btn').click(function (e) {
+                e.preventDefault();
+                var $this = $(this);
+                var slug = $this.data('slug');
+                var quantity = parseInt($('#quantity_input').val()) || 1;
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: { slug: slug, quantity: quantity },
+                    success: function (result) {
+                        if (result.success) {
+                            Toastify({
+                                text: result.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#28a745" }
+                            }).showToast();
+                        } else {
+                            Toastify({
+                                text: result.message,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { background: "#dc3545" }
+                            }).showToast();
+                        }
+                    },
+                    error: function () {
+                        Toastify({
+                            text: 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.',
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: { background: "#dc3545" }
+                        }).showToast();
+                    }
+                });
+            });
+        });
+
+        // Quantity controls
+        function increaseQuantity() {
+            var input = document.getElementById('quantity_input');
+            var currentValue = parseInt(input.value);
+            var maxValue = parseInt(input.getAttribute('max'));
+
+            if (currentValue < maxValue) {
+                input.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity() {
+            var input = document.getElementById('quantity_input');
+            var currentValue = parseInt(input.value);
+
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+    </script>
+}
+
+<style>
+    .product-gallery {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 20px;
+    }
+
+    .main-image-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .main-image {
+        position: relative;
+        width: 100%;
+        height: 450px;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #f8f9fa;
+    }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .main-image:hover img {
+            transform: scale(1.05);
+        }
+
+    .product-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .thumbnail-container {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .thumbnail-wrapper {
+        display: flex;
+        gap: 10px;
+        padding: 5px 0;
+    }
+
+    .thumbnail-item {
+        flex: 0 0 auto;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+        .thumbnail-item.active {
+            border-color: #b19361;
+        }
+
+        .thumbnail-item:hover {
+            border-color: #d4af37;
+        }
+
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .product-details-info {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        height: fit-content;
+    }
+
+    .product-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        line-height: 1.3;
+    }
+
+    .product-meta {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .rating-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .rating-stars i {
+        font-size: 16px;
+        margin-right: 2px;
+    }
+
+    .rating-text, .view-count {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .view-count {
+        padding-left: 15px;
+        border-left: 1px solid #ddd;
+    }
+
+    .price-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .price-with-discount {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .current-price {
+        font-size: 32px;
+        font-weight: 700;
+        color: #e74c3c;
+    }
+
+    .original-price {
+        font-size: 20px;
+        color: #999;
+        text-decoration: line-through;
+    }
+
+    .save-amount {
+        background: #e8f5e8;
+        color: #28a745;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .product-description {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+        .product-description p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+    .product-availability {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .in-stock {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .out-of-stock {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+        .in-stock i, .out-of-stock i {
+            margin-right: 8px;
+        }
+
+    .product-actions {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .quantity-selector {
+        margin-bottom: 20px;
+    }
+
+        .quantity-selector label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .qty-btn {
+        background: #f8f9fa;
+        border: none;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+        .qty-btn:hover {
+            background: #e9ecef;
+        }
+
+    #quantity_input {
+        border: none;
+        width: 60px;
+        height: 40px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .add-to-cart-btn {
+        background: linear-gradient(45deg, #b19361, #d4af37);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s;
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .add-to-cart-btn:hover {
+            background: linear-gradient(45deg, #9d8052, #b8941f);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(177, 147, 97, 0.3);
+        }
+
+    .add-to-wishlist {
+        background: #fff;
+        border: 2px solid #e9ecef;
+        color: #666;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .add-to-wishlist:hover {
+            border-color: #b19361;
+            color: #b19361;
+        }
+
+    .product-features {
+        margin-bottom: 0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        color: #666;
+    }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-item i {
+            color: #b19361;
+            font-size: 18px;
+            width: 20px;
+        }
+
+    .product-tabs {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .nav-tabs {
+        background: #f8f9fa;
+        border-bottom: none;
+        padding: 0 20px;
+    }
+
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 20px 25px;
+            font-weight: 600;
+            color: #666;
+            border-radius: 0;
+            transition: all 0.3s;
+        }
+
+            .nav-tabs .nav-link.active {
+                background: #fff;
+                color: #b19361;
+                border-bottom: 3px solid #b19361;
+            }
+
+            .nav-tabs .nav-link:hover {
+                color: #b19361;
+            }
+
+    .tab-content-wrapper {
+        padding: 30px;
+    }
+
+    .description-content, .specifications-content {
+        line-height: 1.6;
+        color: #666;
+    }
+
+    .reviews-section {
+        max-width: 800px;
+    }
+
+    .review-item {
+        padding: 20px;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .reviewer-info {
+        flex: 1;
+    }
+
+    .reviewer-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .review-rating i {
+        font-size: 14px;
+        margin-right: 2px;
+    }
+
+    .review-date {
+        color: #999;
+        font-size: 12px;
+    }
+
+    .review-content p {
+        margin: 0;
+        color: #666;
+        line-height: 1.5;
+    }
+
+    .no-reviews {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .add-review-section {
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 2px solid #eee;
+    }
+
+        .add-review-section h5 {
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+    .review-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .review-form label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .review-form .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 16px;
+        transition: all 0.3s;
+    }
+
+        .review-form .form-control:focus {
+            border-color: #b19361;
+            box-shadow: 0 0 0 0.2rem rgba(177, 147, 97, 0.25);
+        }
+
+    .related-products-section {
+        background: #f8f9fa;
+    }
+
+    .section-header h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 16px;
+    }
+
+    .related-product-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+        .related-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .related-product-card .product-image {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+            .related-product-card .product-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
+        .related-product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .related-product-card .discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .related-product-card .product-info {
+            padding: 20px;
+        }
+
+        .related-product-card .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+            .related-product-card .product-name a {
+                color: #333;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+                .related-product-card .product-name a:hover {
+                    color: #b19361;
+                }
+
+        .related-product-card .product-price {
+            margin-bottom: 15px;
+        }
+
+        .related-product-card .current-price {
+            color: #e74c3c;
+            font-size: 18px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .related-product-card .original-price {
+            color: #999;
+            font-size: 14px;
+            text-decoration: line-through;
+        }
+
+        .related-product-card .btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(45deg, #b19361, #d4af37);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .related-product-card .btn:hover {
+                background: linear-gradient(45deg, #9d8052, #b8941f);
+                transform: translateY(-2px);
+            }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .product-title
+
+    {
+        font-size: 24px;
+    }
+
+    .current-price {
+        font-size: 28px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .add-to-cart-btn {
+        min-width: auto;
+    }
+
+    .price-with-discount {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .rating-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .view-count {
+        padding-left: 0;
+        border-left: none;
+    }
+
+    }
+</style>

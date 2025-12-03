@@ -1,0 +1,99 @@
+﻿@model Ecommerce_WatchShop.Models.Slider
+
+@{
+    ViewData["Title"] = "Chi tiết Banner";
+}
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Chi tiết Banner</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Banner</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Thông tin Banner</h3>
+                <div class="card-tools">
+                    <a asp-action="Edit" asp-route-id="@Model.Ma" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Tiêu đề:</dt>
+                            <dd class="col-sm-8">@Model.TieuDe</dd>
+
+                            <dt class="col-sm-4">Mô tả:</dt>
+                            <dd class="col-sm-8">@Model.MoTa</dd>
+
+                            <dt class="col-sm-4">Liên kết:</dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.Link))
+                                {
+                                    <a href="@Model.Link" target="_blank">@Model.Link</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Không có</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Thứ tự hiển thị:</dt>
+                            <dd class="col-sm-8">@Model.ThuTuHienThi</dd>
+
+                            <dt class="col-sm-4">Trạng thái:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.TrangThai)
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Tạm dừng</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Hình ảnh:</label>
+                            <div class="mt-2">
+                                @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                                {
+                                    <img src="~/Images/@Model.HinhAnh" alt="@Model.TieuDe"
+                                         class="img-fluid img-thumbnail" style="max-width: 100%; height: auto;" />
+                                }
+                                else
+                                {
+                                    <div class="text-center p-4 bg-light">
+                                        <i class="fas fa-image fa-3x text-muted"></i>
+                                        <p class="mt-2 text-muted">Không có hình ảnh</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

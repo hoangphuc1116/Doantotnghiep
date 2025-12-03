@@ -1,0 +1,1482 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quan ly thuong hieu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a67d8;
+            --primary-light: #764ba2;
+            --secondary-color: #718096;
+            --success-color: #48bb78;
+            --danger-color: #f56565;
+            --warning-color: #ed8936;
+            --light-gray: #f7fafc;
+            --gray: #e2e8f0;
+            --dark-gray: #4a5568;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+                pointer-events: none;
+                z-index: 0;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 30px 0;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: black;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+            .header-title i {
+                background: var(--gradient-success);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            }
+
+        /* Button Styles */
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .btn:hover::before {
+                left: 100%;
+            }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(0);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-xl);
+            }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+            .btn-secondary:hover {
+                background: var(--light-gray);
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .btn-danger {
+            background: var(--gradient-secondary);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-xl);
+            }
+
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        /* Search Section */
+        .search-section {
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 450px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+                transform: translateY(-2px);
+            }
+
+            .search-input::placeholder {
+                color: var(--text-secondary);
+            }
+
+        /* Brands Section */
+        .brands-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .brands-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+            .brands-header h2 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                background: var(--gradient-primary);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+        .brand-count {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: var(--light-gray);
+            border-radius: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+            animation: fadeIn 0.8s ease;
+        }
+
+            .empty-state i {
+                font-size: 5rem;
+                background: var(--gradient-primary);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 25px;
+                display: block;
+            }
+
+            .empty-state h3 {
+                font-size: 1.8rem;
+                margin-bottom: 12px;
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+
+            .empty-state p {
+                font-size: 1.1rem;
+            }
+
+            .empty-state.hidden {
+                display: none;
+            }
+
+        /* Brands Grid */
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .brand-card {
+            background: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease;
+        }
+
+            .brand-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient-primary);
+            }
+
+            .brand-card:hover {
+                transform: translateY(-8px);
+                box-shadow: var(--shadow-xl);
+                border-color: var(--primary-color);
+            }
+
+        .brand-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .brand-category {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--gradient-success);
+            color: white;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-status {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .brand-status.active {
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white;
+            }
+
+            .brand-status.inactive {
+                background: linear-gradient(135deg, #f56565, #e53e3e);
+                color: white;
+            }
+
+            .brand-status.pending {
+                background: linear-gradient(135deg, #ed8936, #dd6b20);
+                color: white;
+            }
+
+        .brand-description {
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .brand-website {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+            .brand-website:hover {
+                color: var(--primary-dark);
+                transform: translateX(4px);
+            }
+
+        .brand-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+            .modal.show {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-small {
+            max-width: 450px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            border-bottom: 2px solid var(--border-color);
+            background: var(--light-gray);
+        }
+
+            .modal-header h3 {
+                font-size: 1.4rem;
+                font-weight: 700;
+                background: var(--gradient-primary);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+            .close-btn:hover {
+                background: var(--danger-color);
+                color: white;
+                transform: rotate(90deg);
+            }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        /* Form Styles */
+        .brand-form {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: var(--text-primary);
+                font-size: 14px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 16px;
+                border: 2px solid var(--border-color);
+                border-radius: var(--border-radius);
+                font-size: 15px;
+                transition: var(--transition);
+                background: white;
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                    transform: translateY(-2px);
+                }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 4px rgba(245, 101, 101, 0.1);
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            padding-top: 25px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        /* Delete Modal */
+        .delete-warning {
+            text-align: center;
+            padding: 30px;
+        }
+
+            .delete-warning i {
+                font-size: 4rem;
+                color: var(--warning-color);
+                margin-bottom: 25px;
+                animation: pulse 2s infinite;
+            }
+
+            .delete-warning p {
+                margin-bottom: 12px;
+                font-size: 16px;
+            }
+
+        .warning-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            padding: 20px;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+            .toast.show {
+                transform: translateX(0);
+            }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast.success {
+            border-left-color: var(--success-color);
+        }
+
+            .toast.success .toast-icon {
+                color: var(--success-color);
+            }
+
+        .toast.error {
+            border-left-color: var(--danger-color);
+        }
+
+            .toast.error .toast-icon {
+                color: var(--danger-color);
+            }
+
+        .toast.info {
+            border-left-color: var(--primary-color);
+        }
+
+            .toast.info .toast-icon {
+                color: var(--primary-color);
+            }
+
+        .toast-message {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes fadeInDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes slideInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes modalFadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes modalSlideIn {
+            from
+
+        {
+            transform: translateY(-50px) scale(0.95);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes pulse {
+            0%, 100%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .container
+
+        {
+            padding: 15px;
+        }
+
+        .header {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header-title {
+            font-size: 2rem;
+        }
+
+        .brands-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .brand-card-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .brand-actions {
+            flex-direction: column;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .search-container {
+            max-width: 100%;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .header-title
+
+        {
+            font-size: 1.8rem;
+        }
+
+        .brands-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .brands-section {
+            padding: 20px;
+        }
+
+        .brand-card {
+            padding: 20px;
+        }
+
+        .toast {
+            right: 15px;
+            left: 15px;
+            transform: translateY(-100%);
+        }
+
+            .toast.show {
+                transform: translateY(0);
+            }
+
+        }
+
+        /* Additional hover effects */
+        .brand-card:hover .brand-name {
+            color: var(--primary-color);
+        }
+
+        .brand-card:hover .brand-actions .btn {
+            transform: translateY(-2px);
+        }
+
+        /* Loading animation for brand cards */
+        @@keyframes brandCardLoad {
+            0%
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .brand-card {
+            animation: brandCardLoad 0.6s ease;
+        }
+
+            .brand-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .brand-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .brand-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .brand-card:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .brand-card:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+            .brand-card:nth-child(6) {
+                animation-delay: 0.6s;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="header-title">
+                <i class="fas fa-tags"></i>
+                Quan ly thuong hieu
+            </h1>
+            <button class="btn btn-primary" id="addBrandBtn">
+                <i class="fas fa-plus"></i>
+                Them thuong hieu moi
+            </button>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Tim kiem thuong hieu..." class="search-input">
+            </div>
+        </div>
+
+        <div class="brands-section">
+            <div class="brands-header">
+                <h2>Danh sach thuong hieu</h2>
+                <span class="brand-count" id="brandCount">0 thuong hieu</span>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-building"></i>
+                <h3>Khong tim thay thuong hieu</h3>
+                <p>Bat dau bang cach them thuong hieu dau tien cua ban</p>
+            </div>
+
+            <div class="brands-grid" id="brandsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Brand Modal -->
+    <div class="modal" id="brandModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Them thuong hieu moi</h3>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="brandForm" class="brand-form">
+                <input type="hidden" id="brandId" name="MaThuongHieu">
+                <div class="form-group">
+                    <label for="brandName">Ten thuong hieu *</label>
+                    <input type="text" id="brandName" name="TenThuongHieu" required>
+                    <div class="error-message" id="brandNameError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandDescription">Mo ta</label>
+                    <textarea id="brandDescription" name="MoTa" rows="3" placeholder="Nhap mo ta thuong hieu..."></textarea>
+                    <div class="error-message" id="brandDescriptionError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandWebsite">Trang web</label>
+                    <input type="url" id="brandWebsite" name="TrangWeb" placeholder="https://example.com">
+                    <div class="error-message" id="brandWebsiteError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandCategory">Danh muc</label>
+                    <select id="brandCategory" name="DanhMucId">
+                        <option value="0">Chon danh muc...</option>
+                    </select>
+                    <div class="error-message" id="brandCategoryError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandStatus">Trang thai</label>
+                    <select id="brandStatus" name="TrangThai">
+                        <option value="active">Hoat dong</option>
+                        <option value="inactive">Tam dung</option>
+                        <option value="pending">Dang cho</option>
+                    </select>
+                    <div class="error-message" id="brandStatusError"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Huy</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Luu thuong hieu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Xac nhan xoa</h3>
+                <button class="close-btn" id="closeDeleteModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Ban co chac chan muon xoa "<span id="deleteBrandName"></span>"?</p>
+                    <p class="warning-text">Hanh dong nay khong the hoan tac.</p>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Huy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xoa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <script>
+        class BrandManager {
+            constructor() {
+                this.brands = [];
+                this.currentBrandId = null;
+                this.isEditing = false;
+                this.brandIdToDelete = null;
+                this.danhMucList = [];
+
+                this.initializeEventListeners();
+                this.loadBrands();
+                this.addInitialAnimations();
+            }
+
+            // Add initial animations
+            addInitialAnimations() {
+                const brandCards = document.querySelectorAll('.brand-card');
+                brandCards.forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+            }
+
+            // Load brands from server
+            loadBrands(searchQuery = '') {
+                $.ajax({
+                    url: '@Url.Action("GetBrands", "Brand", new { area = "Admin" })',
+                    type: 'GET',
+                    data: { searchQuery: searchQuery },
+                    success: (response) => {
+                        if (response.success) {
+                            this.brands = response.data;
+                            this.danhMucList = response.danhMucList;
+                            this.renderBrands();
+                            this.populateCategorySelect();
+                        } else {
+                            this.showToast('Loi khi tai danh sach thuong hieu: ' + response.message, 'error');
+                        }
+                    },
+                    error: (xhr) => {
+                        console.log('Loi khi tai thuong hieu:', xhr.responseText);
+                        this.showToast('Loi khi tai danh sach thuong hieu: ' + xhr.responseText, 'error');
+                    }
+                });
+            }
+
+            // Populate category select
+            populateCategorySelect() {
+                const select = $('#brandCategory');
+                select.empty();
+                select.append('<option value="0">Chon danh muc...</option>');
+                this.danhMucList.forEach(danhMuc => {
+                    select.append(`<option value="${danhMuc.id}">${this.escapeHtml(danhMuc.name)}</option>`);
+                });
+            }
+
+            // Event Listeners
+            initializeEventListeners() {
+                // Add brand button
+                $('#addBrandBtn').on('click', () => {
+                    this.openAddModal();
+                });
+
+                // Modal close buttons
+                $('#closeModal, #cancelBtn').on('click', () => {
+                    this.closeModal();
+                });
+
+                // Delete modal buttons
+                $('#closeDeleteModal, #cancelDeleteBtn').on('click', () => {
+                    this.closeDeleteModal();
+                });
+
+                $('#confirmDeleteBtn').on('click', () => {
+                    this.confirmDelete();
+                });
+
+                // Form submission
+                $('#brandForm').on('submit', (e) => {
+                    e.preventDefault();
+                    this.handleFormSubmit();
+                });
+
+                // Search functionality
+                $('#searchInput').on('input', (e) => {
+                    this.searchBrands(e.target.value);
+                });
+
+                // Modal backdrop click
+                $('#brandModal').on('click', (e) => {
+                    if (e.target === document.getElementById('brandModal')) {
+                        this.closeModal();
+                    }
+                });
+
+                $('#deleteModal').on('click', (e) => {
+                    if (e.target === document.getElementById('deleteModal')) {
+                        this.closeDeleteModal();
+                    }
+                });
+
+                // Keyboard shortcuts
+                $(document).on('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                        this.closeDeleteModal();
+                    }
+                });
+            }
+
+            // Modal Operations
+            openAddModal() {
+                this.isEditing = false;
+                this.currentBrandId = null;
+                $('#modalTitle').text('Them thuong hieu moi');
+                $('#saveBtn').html('<i class="fas fa-save"></i> Luu thuong hieu');
+                this.clearForm();
+                this.populateCategorySelect();
+                this.showModal('brandModal');
+            }
+
+            openEditModal(brandId) {
+                this.isEditing = true;
+                this.currentBrandId = brandId;
+                $.ajax({
+                    url: '@Url.Action("Edit", "Brand", new { area = "Admin" })?id=' + brandId,
+                    type: 'GET',
+                    success: (response) => {
+                        if (response.success) {
+                            this.danhMucList = response.danhMucList;
+                            $('#modalTitle').text('Chinh sua thuong hieu');
+                            $('#saveBtn').html('<i class="fas fa-edit"></i> Cap nhat thuong hieu');
+                            this.populateForm(response.data);
+                            this.populateCategorySelect();
+                            this.showModal('brandModal');
+                        } else {
+                            this.showToast('Loi: ' + response.message, 'error');
+                        }
+                    },
+                    error: (xhr) => {
+                        console.log('Loi khi tai thuong hieu:', xhr.responseText);
+                        this.showToast('Loi khi tai du lieu thuong hieu: ' + xhr.responseText, 'error');
+                    }
+                });
+            }
+
+            showModal(modalId) {
+                const modal = document.getElementById(modalId);
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeModal() {
+                const modal = document.getElementById('brandModal');
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                this.clearForm();
+                this.clearValidationErrors();
+            }
+
+            closeDeleteModal() {
+                const modal = document.getElementById('deleteModal');
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                this.brandIdToDelete = null;
+            }
+
+            // Form Operations
+            clearForm() {
+                $('#brandForm')[0].reset();
+                $('#brandId').val('');
+                $('#brandCategory').val('0');
+            }
+
+            populateForm(brand) {
+                $('#brandId').val(brand.id);
+                $('#brandName').val(brand.name);
+                $('#brandDescription').val(brand.description || '');
+                $('#brandCategory').val(brand.categoryId || '0');
+                $('#brandStatus').val(brand.status || 'active');
+            }
+
+            handleFormSubmit() {
+                if (this.validateForm()) {
+                    const formData = this.getFormData();
+                    if (this.isEditing) {
+                        this.updateBrand(this.currentBrandId, formData);
+                    } else {
+                        this.addBrand(formData);
+                    }
+                }
+            }
+
+            getFormData() {
+                return {
+                    MaThuongHieu: parseInt($('#brandId').val()) || 0,
+                    TenThuongHieu: $('#brandName').val().trim(),
+                    MoTa: $('#brandDescription').val().trim(),
+                    DanhMucId: parseInt($('#brandCategory').val()) || null,
+                    TrangThai: $('#brandStatus').val()
+                };
+            }
+
+            // Validation
+            validateForm() {
+                let isValid = true;
+                this.clearValidationErrors();
+
+                const brandName = $('#brandName').val().trim();
+                if (!brandName) {
+                    this.showValidationError('brandName', 'Ten thuong hieu la bat buoc');
+                    isValid = false;
+                } else if (brandName.length < 2) {
+                    this.showValidationError('brandName', 'Ten thuong hieu phai co it nhat 2 ky tu');
+                    isValid = false;
+                }
+
+
+                const description = $('#brandDescription').val().trim();
+                if (description && description.length > 500) {
+                    this.showValidationError('brandDescription', 'Mo ta khong duoc vuot qua 500 ky tu');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            isValidURL(string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
+
+            showValidationError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(fieldId + 'Error');
+                const formGroup = field.closest('.form-group');
+                formGroup.classList.add('error');
+                errorElement.textContent = message;
+            }
+
+            clearValidationErrors() {
+                $('.form-group').removeClass('error');
+                $('.error-message').text('');
+            }
+
+            // CRUD Operations
+            addBrand(brandData) {
+                $.ajax({
+                    url: '@Url.Action("Create", "Brand", new { area = "Admin" })',
+                    type: 'POST',
+                    data: brandData,
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: (response) => {
+                        if (response.success) {
+                            this.brands.push(response.data);
+                            this.renderBrands();
+                            this.closeModal();
+                            this.showToast(response.message, 'success');
+                        } else {
+                            this.showToast('Loi: ' + response.message, 'error');
+                        }
+                    },
+                    error: (xhr) => {
+                        console.log('Loi khi them:', xhr.responseText);
+                        this.showToast('Loi khi them thuong hieu: ' + xhr.responseText, 'error');
+                    }
+                });
+            }
+
+            updateBrand(brandId, brandData) {
+                $.ajax({
+                    url: '@Url.Action("Edit", "Brand", new { area = "Admin" })',
+                    type: 'POST',
+                    data: brandData,
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: (response) => {
+                        if (response.success) {
+                            const index = this.brands.findIndex(brand => brand.id === brandId);
+                            if (index !== -1) {
+                                this.brands[index] = response.data;
+                                this.renderBrands();
+                                this.closeModal();
+                                this.showToast(response.message, 'success');
+                            }
+                        } else {
+                            this.showToast('Loi: ' + response.message, 'error');
+                        }
+                    },
+                    error: (xhr) => {
+                        console.log('Loi khi sua:', xhr.responseText);
+                        this.showToast('Loi khi cap nhat thuong hieu: ' + xhr.responseText, 'error');
+                    }
+                });
+            }
+
+            deleteBrand(brandId) {
+                this.brandIdToDelete = parseInt(brandId);
+                const brand = this.brands.find(b => b.id === this.brandIdToDelete);
+                if (brand) {
+                    $('#deleteBrandName').text(brand.name);
+                    this.showModal('deleteModal');
+                }
+            }
+
+            confirmDelete() {
+                if (this.brandIdToDelete) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Brand", new { area = "Admin" })',
+                        type: 'POST',
+                        data: { id: this.brandIdToDelete },
+                        headers: {
+                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: (response) => {
+                            if (response.success) {
+                                this.brands = this.brands.filter(brand => brand.id !== this.brandIdToDelete);
+                                this.renderBrands();
+                                this.showToast(response.message, 'success');
+                            } else {
+                                this.showToast('Loi: ' + response.message, 'error');
+                            }
+                            this.closeDeleteModal();
+                        },
+                        error: (xhr) => {
+                            console.log('Loi khi xoa:', xhr.responseText);
+                            this.showToast('Loi khi xoa thuong hieu: ' + xhr.responseText, 'error');
+                            this.closeDeleteModal();
+                        }
+                    });
+                }
+            }
+
+            // Search and Filter
+            searchBrands(query) {
+                this.loadBrands(query);
+            }
+
+            // Rendering
+            renderBrands(brandsToRender = this.brands) {
+                const brandsGrid = $('#brandsGrid');
+                const emptyState = $('#emptyState');
+                const brandCount = $('#brandCount');
+
+                // Update brand count
+                const count = brandsToRender.length;
+                brandCount.text(`${count} thuong hieu`);
+
+                // Show/hide empty state
+                if (count === 0) {
+                    emptyState.removeClass('hidden');
+                    brandsGrid.empty();
+                    return;
+                } else {
+                    emptyState.addClass('hidden');
+                }
+
+                // Render brand cards
+                brandsGrid.html(brandsToRender.map(brand => this.createBrandCard(brand)).join(''));
+
+                // Add event listeners to action buttons
+                this.attachCardEventListeners();
+                this.addInitialAnimations();
+            }
+
+            createBrandCard(brand) {
+                const categoryClass = brand.categoryId ? `category-${brand.categoryId}` : '';
+                const description = brand.description ? `<p class="brand-description">${this.truncateText(brand.description, 100)}</p>` : '';
+
+                // Vietnamese status names
+                const statusNames = {
+                    'active': 'Hoat Dong',
+                    'inactive': 'Tam Dung',
+                    'pending': 'Dang Cho'
+                };
+
+                return `
+                    <div class="brand-card">
+                        <div class="brand-card-header">
+                            <div>
+                                <h3 class="brand-name">${this.escapeHtml(brand.name)}</h3>
+                                ${brand.categoryId ? `<span class="brand-category ${categoryClass}">${this.escapeHtml(brand.categoryName)}</span>` : ''}
+                            </div>
+                            <span class="brand-status ${brand.status}">${statusNames[brand.status] || brand.status}</span>
+                        </div>
+                        ${description}
+                        <p class="brand-description">So san pham: ${brand.productCount}</p>
+                        <div class="brand-actions">
+                            <button class="btn btn-secondary btn-small edit-btn" data-brand-id="${brand.id}">
+                                <i class="fas fa-edit"></i> Sua
+                            </button>
+                            <button class="btn btn-danger btn-small delete-btn" data-brand-id="${brand.id}">
+                                <i class="fas fa-trash"></i> Xoa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            attachCardEventListeners() {
+                $('.edit-btn').on('click', (e) => {
+                    const brandId = parseInt($(e.currentTarget).data('brand-id'));
+                    console.log('ID gui di:', brandId); // Debug
+                    if (!brandId || isNaN(brandId) || brandId <= 0) {
+                        this.showToast('Loi: ID thuong hieu khong hop le (' + brandId + ')', 'error');
+                        return;
+                    }
+                    this.openEditModal(brandId);
+                });
+
+                $('.delete-btn').on('click', (e) => {
+                    const brandId = parseInt($(e.currentTarget).data('brand-id'));
+                    console.log('ID xoa:', brandId); // Debug
+                    if (!brandId || isNaN(brandId) || brandId <= 0) {
+                        this.showToast('Loi: ID thuong hieu khong hop le (' + brandId + ')', 'error');
+                        return;
+                    }
+                    this.deleteBrand(brandId);
+                });
+            }
+
+            // Utility Functions
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Toast Notifications
+            showToast(message, type = 'info') {
+                const toast = $('#toast');
+                const toastIcon = toast.find('.toast-icon');
+                const toastMessage = toast.find('.toast-message');
+
+                let iconClass = 'fas fa-info-circle';
+                switch (type) {
+                    case 'success':
+                        iconClass = 'fas fa-check-circle';
+                        break;
+                    case 'error':
+                        iconClass = 'fas fa-exclamation-circle';
+                        break;
+                    case 'warning':
+                        iconClass = 'fas fa-exclamation-triangle';
+                        break;
+                }
+
+                toastIcon.removeClass().addClass(`toast-icon ${iconClass}`);
+                toastMessage.text(message);
+                toast.removeClass().addClass(`toast ${type}`);
+                toast.addClass('show');
+
+                setTimeout(() => {
+                    toast.removeClass('show');
+                }, 4000);
+            }
+        }
+
+        // Initialize the application
+        $(document).ready(() => {
+            new BrandManager();
+        });
+
+        // Add floating animation to header icon
+        $(document).ready(() => {
+            const headerIcon = $('.header-title i');
+            if (headerIcon.length) {
+                setInterval(() => {
+                    headerIcon.css('transform', 'translateY(-5px)');
+                    setTimeout(() => {
+                        headerIcon.css('transform', 'translateY(0)');
+                    }, 1000);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

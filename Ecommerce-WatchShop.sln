@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce-WatchShop", "Ecommerce-WatchShop\Ecommerce-WatchShop.csproj", "{BDDB4512-70A1-42E4-8F7D-57DA69016700}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BDDB4512-70A1-42E4-8F7D-57DA69016700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDDB4512-70A1-42E4-8F7D-57DA69016700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDDB4512-70A1-42E4-8F7D-57DA69016700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDDB4512-70A1-42E4-8F7D-57DA69016700}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
