@@ -18,7 +18,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h5>Thông tin đơn hàng</h5>
-                            <p><strong>Mã đơn hàng:</strong> #DH@Model.MaHoaDon.ToString("D6")</p>
+                            <p><strong>Mã đơn hàng:</strong> #DH@(Model.MaHoaDon.ToString("D6"))</p>
                             <p><strong>Ngày đặt:</strong> @Model.NgayDatHang.ToString("dd/MM/yyyy HH:mm")</p>
                             @if (ViewBag.DiscountPercent != null && (decimal)ViewBag.DiscountPercent > 0)
                             {
@@ -106,24 +106,27 @@
                             <i class="fa fa-home"></i> Về trang chủ
                         </a>
 
-                        @if (ViewBag.CanCancel != null && (bool)ViewBag.CanCancel)
+                        @if (Model.TrangThai == 0)
                         {
-                            <button type="button" class="btn btn-danger" onclick="cancelOrder(@Model.MaHoaDon)">
+                            <button type="button" class="btn btn-danger" onclick="showCancelModal(@Model.MaHoaDon)" style="background-color:#eb1313; border-color:#eb1313">
                                 <i class="fa fa-times"></i> Hủy đơn hàng
                             </button>
                         }
-                        else if (Model.TrangThai != 0 && Model.TrangThai != 4 && !Model.DaYeuCauHuy)
+                        else if (Model.TrangThai == 4)
                         {
-                            <button type="button" class="btn btn-warning" onclick="requestCancelOrder(@Model.MaHoaDon)">
-                                <i class="fa fa-exclamation-triangle"></i> Yêu cầu hủy đơn hàng
-                            </button>
+                            <div class="alert alert-danger mb-0">
+                                <i class="fa fa-times-circle"></i> Đơn hàng đã bị hủy
+                                @if (!string.IsNullOrEmpty(Model.YeuCauHuy))
+                                {
+                                    <br><strong>Lý do:</strong> @Model.YeuCauHuy
+                                    <br><strong>Ngày hủy:</strong> @Model.NgayYeuCauHuy?.ToString("dd/MM/yyyy HH:mm")
+                                }
+                            </div>
                         }
-                        else if (Model.DaYeuCauHuy)
+                        else
                         {
-                            <div class="alert alert-info">
-                                <i class="fa fa-info-circle"></i> Bạn đã gửi yêu cầu hủy đơn hàng này. Admin sẽ xem xét và phản hồi sớm nhất.
-                                <br><strong>Lý do:</strong> @(string.IsNullOrEmpty(Model.YeuCauHuy) ? "Không có lý do cụ thể" : Model.YeuCauHuy)
-                                <br><strong>Ngày yêu cầu:</strong> @Model.NgayYeuCauHuy?.ToString("dd/MM/yyyy HH:mm")
+                            <div class="alert alert-info mb-0">
+                                <i class="fa fa-info-circle"></i> Đơn hàng đã được xác nhận, không thể hủy.
                             </div>
                         }
                     </div>
@@ -133,56 +136,116 @@
     </div>
 </div>
 
+<!-- Modal Hủy Đơn Hàng -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Hủy Đơn Hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cancelOrderForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="cancelOrderId" name="id" />
+                    <div class="alert alert-warning mb-3">
+                        <i class="fa fa-exclamation-triangle"></i> 
+                        <strong>Lưu ý:</strong> Bạn chỉ có thể hủy đơn hàng khi đơn hàng chưa được xác nhận.
+                    </div>
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">Vui lòng chọn lý do hủy đơn: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="cancelReason" name="reason" required>
+                            <option value="">-- Chọn lý do --</option>
+                            <option value="Tôi muốn thay đổi địa chỉ giao hàng">Tôi muốn thay đổi địa chỉ giao hàng</option>
+                            <option value="Tôi muốn thay đổi sản phẩm">Tôi muốn thay đổi sản phẩm</option>
+                            <option value="Tôi tìm thấy giá rẻ hơn ở nơi khác">Tôi tìm thấy giá rẻ hơn ở nơi khác</option>
+                            <option value="Tôi đổi ý, không muốn mua nữa">Tôi đổi ý, không muốn mua nữa</option>
+                            <option value="Thời gian giao hàng quá lâu">Thời gian giao hàng quá lâu</option>
+                            <option value="Đặt nhầm sản phẩm">Đặt nhầm sản phẩm</option>
+                            <option value="Lý do khác">Lý do khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="otherReasonDiv" style="display: none;">
+                        <label for="otherReason" class="form-label">Nhập lý do khác:</label>
+                        <textarea class="form-control" id="otherReason" rows="3" placeholder="Vui lòng nhập lý do..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="submitCancelOrder()">Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function cancelOrder(orderId) {
-            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
-                $.ajax({
-                    url: '@Url.Action("CancelOrder", "Checkout")',
-                    type: 'POST',
-                    data: { orderId: orderId },
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('Có lỗi xảy ra khi hủy đơn hàng');
-                    }
-                });
-            }
+        // Hiển thị modal hủy đơn
+        function showCancelModal(orderId) {
+            $('#cancelOrderId').val(orderId);
+            $('#cancelReason').val('');
+            $('#otherReason').val('');
+            $('#otherReasonDiv').hide();
+            var modal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+            modal.show();
         }
 
-        function requestCancelOrder(orderId) {
-            const reason = prompt('Vui lòng nhập lý do hủy đơn hàng:');
-            if (reason !== null) {
-                $.ajax({
-                    url: '@Url.Action("RequestCancelOrder", "Checkout")',
-                    type: 'POST',
-                    data: JSON.stringify({ orderId: orderId, reason: reason }),
-                    contentType: 'application/json',
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('Có lỗi xảy ra khi gửi yêu cầu hủy đơn hàng');
-                    }
-                });
+        // Hiển thị textarea khi chọn "Lý do khác"
+        $(document).ready(function() {
+            $('#cancelReason').on('change', function() {
+                if ($(this).val() === 'Lý do khác') {
+                    $('#otherReasonDiv').show();
+                    $('#otherReason').focus();
+                } else {
+                    $('#otherReasonDiv').hide();
+                }
+            });
+        });
+
+        // Submit form hủy đơn
+        function submitCancelOrder() {
+            var orderId = $('#cancelOrderId').val();
+            var reason = $('#cancelReason').val();
+            
+            if (!reason) {
+                alert('Vui lòng chọn lý do hủy đơn!');
+                return;
             }
+
+            // Nếu chọn "Lý do khác", lấy nội dung từ textarea
+            if (reason === 'Lý do khác') {
+                var otherReason = $('#otherReason').val().trim();
+                if (!otherReason) {
+                    alert('Vui lòng nhập lý do hủy đơn!');
+                    return;
+                }
+                reason = 'Lý do khác: ' + otherReason;
+            }
+
+            // Gửi AJAX request
+            $.ajax({
+                url: '@Url.Action("CancelOrder", "Account")',
+                type: 'POST',
+                data: {
+                    id: orderId,
+                    reason: reason,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra! Vui lòng thử lại.');
+                }
+            });
         }
     </script>
 }

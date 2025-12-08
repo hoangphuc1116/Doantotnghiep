@@ -150,13 +150,13 @@ namespace Ecommerce_WatchShop.Controllers
                         Xa = model.Ward?.Trim() ?? "",
                         PhuongThucThanhToan = model.PaymentMethod,
                         TongTien = totalAmount,
-                        TrangThai = 1 // Chờ xác nhận
+                        TrangThai = 0 // Chờ xác nhận
                     };
 
                     _context.HoaDons.Add(hoaDon);
                     await _context.SaveChangesAsync();
 
-                    // Tạo chi tiết hóa đơn
+                    // Tạo chi tiết hóa đơn và trừ số lượng sản phẩm
                     foreach (var cartItem in Carts)
                     {
                         var chiTiet = new ChiTietHoaDon
@@ -168,6 +168,15 @@ namespace Ecommerce_WatchShop.Controllers
                             TongTien = (decimal)(cartItem.Quantity * cartItem.Price)
                         };
                         _context.ChiTietHoaDons.Add(chiTiet);
+
+                        // Trừ số lượng sản phẩm trong kho
+                        var product = await _context.SanPhams.FindAsync(cartItem.ProductId);
+                        if (product != null)
+                        {
+                            product.SoLuong -= cartItem.Quantity;
+                            if (product.SoLuong < 0) product.SoLuong = 0; // Đảm bảo không âm
+                            _context.SanPhams.Update(product);
+                        }
                     }
 
                     await _context.SaveChangesAsync();
@@ -257,8 +266,9 @@ namespace Ecommerce_WatchShop.Controllers
                 string vnp_ResponseCode = vnp_Params["vnp_ResponseCode"];
                 if (vnp_ResponseCode == "00")
                 {
-                    // Thanh toán thành công
-                    order.TrangThai = 2; // Đã thanh toán
+                    // Thanh toán thành công - Đơn hàng vẫn ở trạng thái Chờ xác nhận
+                    // Admin sẽ xác nhận đơn hàng sau
+                    order.TrangThai = 0; // Chờ xác nhận
                     await _context.SaveChangesAsync();
 
                     // Xóa giỏ hàng
@@ -269,8 +279,11 @@ namespace Ecommerce_WatchShop.Controllers
                 }
                 else
                 {
-                    // Thanh toán thất bại
-                    order.TrangThai = 0; // Hủy
+                    // Thanh toán thất bại - Hủy đơn hàng
+                    order.TrangThai = 4; // Đã hủy
+                    order.YeuCauHuy = $"Thanh toán thất bại. Mã lỗi: {vnp_ResponseCode}";
+                    order.NgayYeuCauHuy = DateTime.Now;
+                    order.DaYeuCauHuy = true;
                     await _context.SaveChangesAsync();
 
                     TempData["error"] = $"Thanh toán thất bại. Mã lỗi: {vnp_ResponseCode}";
@@ -388,21 +401,17 @@ namespace Ecommerce_WatchShop.Controllers
                     return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
                 }
 
-                // Kiểm tra trạng thái đơn hàng
-                if (order.TrangThai != 1)
+                // Kiểm tra trạng thái đơn hàng - Chỉ cho phép hủy khi đơn hàng chưa được xác nhận
+                if (order.TrangThai != 0)
                 {
-                    return Json(new { success = false, message = "Đơn hàng này không thể hủy" });
+                    return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng chưa được xác nhận" });
                 }
 
-                // Kiểm tra thời gian (chỉ cho phép hủy trong vòng 1 giờ)
-                var hoursSinceOrder = (DateTime.Now - order.NgayDatHang).TotalHours;
-                if (hoursSinceOrder > 1)
-                {
-                    return Json(new { success = false, message = "Đã quá thời gian cho phép hủy đơn hàng (1 giờ)" });
-                }
-
-                // Cập nhật trạng thái đơn hàng thành đã hủy (status = 0)
-                order.TrangThai = 0;
+                // Cập nhật trạng thái đơn hàng thành đã hủy
+                order.TrangThai = 4; // Đã hủy
+                order.YeuCauHuy = "Khách hàng hủy đơn";
+                order.NgayYeuCauHuy = DateTime.Now;
+                order.DaYeuCauHuy = true;
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true, message = "Hủy đơn hàng thành công" });

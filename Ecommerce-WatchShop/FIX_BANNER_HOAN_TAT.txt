@@ -1,0 +1,113 @@
+═══════════════════════════════════════════════════════════════
+                  ĐÃ SỬA LỖI BANNER HOÀN TẤT
+═══════════════════════════════════════════════════════════════
+
+✅ VẤN ĐỀ ĐÃ SỬA:
+
+1. Đường dẫn hình ảnh không đúng:
+   ❌ Trước: /HinhAnhs/laptop-banner-1.jpg (thư mục không tồn tại)
+   ✅ Sau:  /Images/ricky-kharawala-Yka2yhGJwjc-unsplash 1.png
+
+2. View không xử lý đường dẫn:
+   ❌ Trước: <img src="@slider.HinhAnh">
+   ✅ Sau:  <img src="@(slider.HinhAnh.StartsWith("/") ? slider.HinhAnh : "/Images/" + slider.HinhAnh)">
+
+───────────────────────────────────────────────────────────────
+
+📁 CẤU TRÚC THƯ MỤC:
+
+wwwroot/
+  └─ Images/              ← Thư mục chứa hình ảnh
+     ├─ ricky-kharawala-Yka2yhGJwjc-unsplash 1.png
+     ├─ Artboard-1.jpg
+     ├─ default-large.jpg
+     └─ [các file khác...]
+
+───────────────────────────────────────────────────────────────
+
+🔧 CÁCH HOẠT ĐỘNG:
+
+1. Admin upload banner:
+   - File được lưu vào: wwwroot/Images/
+   - Database lưu: tên file (VD: "abc123.jpg")
+   - View tự động thêm "/Images/" vào đường dẫn
+
+2. SeedData:
+   - Lưu đường dẫn đầy đủ: "/Images/filename.jpg"
+   - View kiểm tra nếu bắt đầu bằng "/" thì dùng trực tiếp
+   - Nếu không thì thêm "/Images/" vào trước
+
+───────────────────────────────────────────────────────────────
+
+🚀 CẬP NHẬT DATABASE:
+
+1. Xóa database cũ (nếu cần):
+   dotnet ef database drop --force
+
+2. Cập nhật database:
+   .\update-database.ps1
+
+3. Chạy ứng dụng:
+   dotnet run
+
+4. Kiểm tra:
+   - Mở trang chủ
+   - Banner sẽ hiển thị đúng hình ảnh
+
+───────────────────────────────────────────────────────────────
+
+📝 THÊM BANNER MỚI TỪ ADMIN:
+
+1. Đăng nhập admin: admin / admin123
+
+2. Vào: Quản lý Banner
+
+3. Click "Thêm mới"
+
+4. Điền thông tin:
+   - Tiêu đề: Tên banner
+   - Mô tả: Mô tả ngắn
+   - Hình ảnh: Upload file (tự động lưu vào /Images/)
+   - Link: URL khi click banner
+   - Thứ tự hiển thị: 1, 2, 3...
+   - Trạng thái: Bật/Tắt
+
+5. Lưu
+
+6. Banner sẽ hiển thị ngay trên trang chủ
+
+───────────────────────────────────────────────────────────────
+
+💡 LƯU Ý:
+
+1. Kích thước hình ảnh khuyến nghị:
+   - Chiều rộng: 1920px
+   - Chiều cao: 600-800px
+   - Định dạng: JPG, PNG
+   - Dung lượng: < 500KB
+
+2. Hình ảnh mặc định:
+   - Banner 1: ricky-kharawala-Yka2yhGJwjc-unsplash 1.png
+   - Banner 2: Artboard-1.jpg
+   - Banner 3: default-large.jpg
+
+3. Thay đổi hình ảnh:
+   - Vào admin → Quản lý Banner
+   - Click "Sửa" trên banner cần đổi
+   - Upload hình mới
+   - Lưu
+
+───────────────────────────────────────────────────────────────
+
+🎨 TÙY CHỈNH BANNER:
+
+File: Views/Shared/_HeroSlider.cshtml
+
+Có thể tùy chỉnh:
+- Tốc độ chuyển slide
+- Hiệu ứng chuyển
+- Vị trí text
+- Màu sắc button
+- Kích thước text
+
+═══════════════════════════════════════════════════════════════

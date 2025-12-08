@@ -31,6 +31,7 @@
                                 <thead>
                                     <tr>
                                         <th class="cell">ID</th>
+                                        <th class="cell">Hình ảnh</th>
                                         <th class="cell">Tên danh mục</th>
                                         <th class="cell">Slug</th>
                                         <th class="cell">Danh mục cha</th>
@@ -50,11 +51,21 @@
                                             }
                                             <tr>
                                                 <td class="cell">@category.MaDanhMuc</td>
+                                                <td class="cell">
+                                                    @if (!string.IsNullOrEmpty(category.HinhAnh))
+                                                    {
+                                                        <img src="@category.HinhAnh" alt="@category.TenDanhMuc" style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Chưa có ảnh</span>
+                                                    }
+                                                </td>
                                                 <td class="cell">@category.TenDanhMuc</td>
                                                 <td class="cell">@category.Slug</td>
                                                 <td class="cell">@parentName</td>
                                                 <td class="cell">
-                                                    <a class="btn" href="#" onclick="editCategory(@category.MaDanhMuc, '@category.TenDanhMuc', '@(category.MaDanhMucCha ?? 0)')">
+                                                    <a class="btn" href="#" onclick="editCategory(@category.MaDanhMuc, '@category.TenDanhMuc', '@(category.MaDanhMucCha ?? 0)', '@(category.HinhAnh ?? "")')">
                                                         <i class="bi bi-pencil-square" style="font-size: 1.2rem"></i>
                                                     </a>
                                                     <a class="btn" href="#" onclick="deleteCategory(@category.MaDanhMuc)">
@@ -67,7 +78,7 @@
                                     else
                                     {
                                         <tr>
-                                            <td class="cell text-center" colspan="5">Không có dữ liệu</td>
+                                            <td class="cell text-center" colspan="6">Không có dữ liệu</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -86,7 +97,7 @@
                         <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="addCategoryForm">
+                    <form id="addCategoryForm" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="CategoryName" class="form-label">Tên danh mục</label>
@@ -101,6 +112,11 @@
                                         <option value="@category.MaDanhMuc">@category.TenDanhMuc</option>
                                     }
                                 </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="CategoryImage" class="form-label">Hình ảnh danh mục</label>
+                                <input type="file" class="form-control" id="CategoryImage" name="hinhAnh" accept="image/*">
+                                <small class="text-muted">Kích thước khuyến nghị: 800x400px</small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -120,7 +136,7 @@
                         <h5 class="modal-title" id="editCategoryModalLabel">Sửa danh mục</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="editCategoryForm">
+                    <form id="editCategoryForm" enctype="multipart/form-data">
                         <input type="hidden" id="EditCategoryId" name="MaDanhMuc">
                         <div class="modal-body">
                             <div class="mb-3">
@@ -137,6 +153,12 @@
                                     }
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="EditCategoryImage" class="form-label">Hình ảnh danh mục</label>
+                                <input type="file" class="form-control" id="EditCategoryImage" name="hinhAnh" accept="image/*">
+                                <small class="text-muted">Để trống nếu không muốn thay đổi hình ảnh</small>
+                                <div id="currentImagePreview" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -152,11 +174,13 @@
                 // Xử lý sự kiện submit của form thêm
                 $('#addCategoryForm').on('submit', function (e) {
                     e.preventDefault();
-                    const formData = $(this).serialize();
+                    const formData = new FormData(this);
                     $.ajax({
                         url: '/admin/category/create',
                         type: 'POST',
                         data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function (response) {
                             if (response.success) {
                                 alert('Thêm danh mục thành công!');
@@ -176,11 +200,13 @@
 
                 $('#editCategoryForm').on('submit', function (e) {
                     e.preventDefault();
-                    const formData = $(this).serialize();
+                    const formData = new FormData(this);
                     $.ajax({
                         url: '/admin/category/edit',
                         type: 'POST',
                         data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function (response) {
                             if (response.success) {
                                 alert(response.message);
@@ -207,13 +233,18 @@
                             if (response.success) {
                                 let rows = '';
                                 response.data.forEach(function (category) {
+                                    const imageHtml = category.image 
+                                        ? `<img src="${category.image}" alt="${category.categoryName}" style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">`
+                                        : '<span class="badge bg-secondary">Chưa có ảnh</span>';
+                                    
                                     rows += `<tr>
                                                 <td class="cell">${category.categoryId}</td>
+                                                <td class="cell">${imageHtml}</td>
                                                 <td class="cell">${category.categoryName}</td>
                                                 <td class="cell">${category.slug}</td>
                                                 <td class="cell">${category.parentId ? category.parentName : 'Không có'}</td>
                                                 <td class="cell">
-                                                    <a class="btn" href="#" onclick="editCategory(${category.categoryId}, '${category.categoryName}', '${category.parentId || ''}')">
+                                                    <a class="btn" href="#" onclick="editCategory(${category.categoryId}, '${category.categoryName}', '${category.parentId || ''}', '${category.image || ''}')">
                                                         <i class="bi bi-pencil-square" style="font-size: 1.2rem"></i>
                                                     </a>
                                                     <a class="btn" href="#" onclick="deleteCategory(${category.categoryId})">
@@ -256,10 +287,23 @@
                 }
 
                 // Xử lý chỉnh sửa danh mục
-                function editCategory(id, name, parentId) {
+                function editCategory(id, name, parentId, imageUrl) {
                     $('#EditCategoryId').val(id);
                     $('#EditCategoryName').val(name);
                     $('#EditParentId').val(parentId || "");
+                    
+                    // Hiển thị preview hình ảnh hiện tại
+                    if (imageUrl && imageUrl !== '') {
+                        $('#currentImagePreview').html(`
+                            <div class="mt-2">
+                                <label class="form-label">Hình ảnh hiện tại:</label><br>
+                                <img src="${imageUrl}" alt="Current" style="max-width: 200px; height: auto; border-radius: 4px; border: 1px solid #ddd;">
+                            </div>
+                        `);
+                    } else {
+                        $('#currentImagePreview').html('<small class="text-muted">Chưa có hình ảnh</small>');
+                    }
+                    
                     $('#editCategoryModal').modal('show');
                 }
         </script>

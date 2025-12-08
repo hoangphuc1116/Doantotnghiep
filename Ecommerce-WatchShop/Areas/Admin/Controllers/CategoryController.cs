@@ -25,7 +25,7 @@ namespace DongHo_Admin.Areas.Admin.Controllers
 
         // Thêm danh mục
         [HttpPost]
-        public async Task<IActionResult> Create(DanhMuc model)
+        public async Task<IActionResult> Create(DanhMuc model, IFormFile? hinhAnh)
         {
             Console.WriteLine($"CategoryName: {model.TenDanhMuc}, ParentId: {model.MaDanhMucCha}, Slug: {model.Slug}");
 
@@ -36,12 +36,19 @@ namespace DongHo_Admin.Areas.Admin.Controllers
                     return Json(new { success = false, message = "Tên danh mục không được để trống!" });
                 }
 
+                // Upload hình ảnh
+                if (hinhAnh != null && hinhAnh.Length > 0)
+                {
+                    var fileName = await UploadImageHelper.UploadImageAsync(hinhAnh, "Images");
+                    model.HinhAnh = "/Images/" + fileName;
+                }
+
                 model.Slug = await SlugHelper.GenerateUniqueSlug(_context, model.TenDanhMuc, SlugHelper.EntityType.Category, model.MaDanhMuc);
                 _context.DanhMucs.Add(model);
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return Json(new { success = true, data = new { id = model.MaDanhMuc, name = model.TenDanhMuc, slug = model.Slug, parentId = model.MaDanhMucCha } });
+                    return Json(new { success = true, data = new { id = model.MaDanhMuc, name = model.TenDanhMuc, slug = model.Slug, parentId = model.MaDanhMucCha, image = model.HinhAnh } });
                 }
                 catch (DbUpdateException ex)
                 {
@@ -57,7 +64,7 @@ namespace DongHo_Admin.Areas.Admin.Controllers
 
         // Cập nhật danh mục
         [HttpPost]
-        public async Task<IActionResult> Edit(DanhMuc model)
+        public async Task<IActionResult> Edit(DanhMuc model, IFormFile? hinhAnh)
         {
             if (ModelState.IsValid)
             {
@@ -68,10 +75,24 @@ namespace DongHo_Admin.Areas.Admin.Controllers
                     category.Slug = await SlugHelper.GenerateUniqueSlug(_context, category.TenDanhMuc, SlugHelper.EntityType.Category, model.MaDanhMuc);
                     category.MaDanhMucCha = model.MaDanhMucCha;
 
+                    // Upload hình ảnh mới nếu có
+                    if (hinhAnh != null && hinhAnh.Length > 0)
+                    {
+                        // Xóa hình ảnh cũ nếu có
+                        if (!string.IsNullOrEmpty(category.HinhAnh))
+                        {
+                            var oldFileName = category.HinhAnh.Replace("/Images/", "");
+                            UploadImageHelper.DeleteImage(oldFileName, "Images");
+                        }
+
+                        var fileName = await UploadImageHelper.UploadImageAsync(hinhAnh, "Images");
+                        category.HinhAnh = "/Images/" + fileName;
+                    }
+
                     _context.Update(category);
                     await _context.SaveChangesAsync();
 
-                    return Json(new { success = true, message = "Cập nhật danh mục thành công!", data = new { id = category.MaDanhMuc, name = category.TenDanhMuc, slug = category.Slug, parentId = category.MaDanhMucCha } });
+                    return Json(new { success = true, message = "Cập nhật danh mục thành công!", data = new { id = category.MaDanhMuc, name = category.TenDanhMuc, slug = category.Slug, parentId = category.MaDanhMucCha, image = category.HinhAnh } });
                 }
                 return Json(new { success = false, message = "Không tìm thấy danh mục!" });
             }
@@ -102,7 +123,8 @@ namespace DongHo_Admin.Areas.Admin.Controllers
                     categoryName = c.TenDanhMuc,
                     slug = c.Slug,
                     parentId = c.MaDanhMucCha,
-                    parentName = c.MaDanhMucCha.HasValue ? _context.DanhMucs.Where(p => p.MaDanhMuc == c.MaDanhMucCha).Select(p => p.TenDanhMuc).FirstOrDefault() ?? "Không có" : "Không có"
+                    parentName = c.MaDanhMucCha.HasValue ? _context.DanhMucs.Where(p => p.MaDanhMuc == c.MaDanhMucCha).Select(p => p.TenDanhMuc).FirstOrDefault() ?? "Không có" : "Không có",
+                    image = c.HinhAnh
                 })
                 .ToList();
 

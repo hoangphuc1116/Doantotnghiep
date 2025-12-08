@@ -1,0 +1,247 @@
+@model IEnumerable<Ecommerce_WatchShop.Models.ThuocTinhSanPham>
+@{
+    ViewData["Title"] = "Quản lý Thuộc tính";
+}
+
+<div class="container-xl">
+    <div class="row g-3 mb-4 align-items-center justify-content-between">
+        <div class="col-auto">
+            <h1 class="app-page-title mb-0">Quản lý Thuộc tính Sản phẩm</h1>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttributeModal">
+                <i class="bi bi-plus-circle"></i> Thêm Thuộc tính
+            </button>
+        </div>
+    </div>
+
+    <div class="app-card app-card-orders-table shadow-sm mb-5">
+        <div class="app-card-body">
+            <div class="table-responsive">
+                <table class="table app-table-hover mb-0 text-left">
+                    <thead>
+                        <tr>
+                            <th class="cell">ID</th>
+                            <th class="cell">Tên Thuộc tính</th>
+                            <th class="cell">Slug</th>
+                            <th class="cell">Mô tả</th>
+                            <th class="cell">Số Giá trị</th>
+                            <th class="cell">Thứ tự</th>
+                            <th class="cell">Hiển thị</th>
+                            <th class="cell">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var attr in Model)
+                            {
+                                <tr>
+                                    <td class="cell">@attr.MaThuocTinh</td>
+                                    <td class="cell"><strong>@attr.TenThuocTinh</strong></td>
+                                    <td class="cell"><code>@attr.Slug</code></td>
+                                    <td class="cell">@attr.MoTa</td>
+                                    <td class="cell">
+                                        <span class="badge bg-info">@attr.GiaTriThuocTinhs.Count giá trị</span>
+                                    </td>
+                                    <td class="cell">@attr.ThuTuHienThi</td>
+                                    <td class="cell">
+                                        @if (attr.HienThi)
+                                        {
+                                            <span class="badge bg-success">Hiển thị</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Ẩn</span>
+                                        }
+                                    </td>
+                                    <td class="cell">
+                                        <a href="@Url.Action("Values", new { id = attr.MaThuocTinh })" class="btn btn-sm btn-info" title="Quản lý giá trị">
+                                            <i class="bi bi-list-ul"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-warning" onclick="editAttribute(@attr.MaThuocTinh, '@attr.TenThuocTinh', '@attr.MoTa', @attr.ThuTuHienThi, @attr.HienThi.ToString().ToLower())" title="Sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteAttribute(@attr.MaThuocTinh)" title="Xóa">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="cell text-center" colspan="8">Chưa có thuộc tính nào</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm Thuộc tính -->
+<div class="modal fade" id="addAttributeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Thuộc tính</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addAttributeForm">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên Thuộc tính <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenThuocTinh" required placeholder="VD: CPU, RAM, VGA...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MoTa" rows="2" placeholder="Mô tả ngắn về thuộc tính"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thứ tự hiển thị</label>
+                        <input type="number" class="form-control" name="ThuTuHienThi" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="HienThi" value="true" checked id="addHienThi">
+                            <label class="form-check-label" for="addHienThi">
+                                Hiển thị trên trang sản phẩm
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa Thuộc tính -->
+<div class="modal fade" id="editAttributeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa Thuộc tính</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editAttributeForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="editMaThuocTinh" name="MaThuocTinh">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên Thuộc tính <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editTenThuocTinh" name="TenThuocTinh" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="editMoTa" name="MoTa" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thứ tự hiển thị</label>
+                        <input type="number" class="form-control" id="editThuTuHienThi" name="ThuTuHienThi">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editHienThi" name="HienThi" value="true">
+                            <label class="form-check-label" for="editHienThi">
+                                Hiển thị trên trang sản phẩm
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Thêm thuộc tính
+            $('#addAttributeForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '@Url.Action("Create", "Attribute")',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra!');
+                    }
+                });
+            });
+
+            // Sửa thuộc tính
+            $('#editAttributeForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '@Url.Action("Edit", "Attribute")',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra!');
+                    }
+                });
+            });
+        });
+
+        function editAttribute(id, name, desc, order, show) {
+            $('#editMaThuocTinh').val(id);
+            $('#editTenThuocTinh').val(name);
+            $('#editMoTa').val(desc);
+            $('#editThuTuHienThi').val(order);
+            $('#editHienThi').prop('checked', show);
+            $('#editAttributeModal').modal('show');
+        }
+
+        function deleteAttribute(id) {
+            if (confirm('Bạn có chắc muốn xóa thuộc tính này? Tất cả giá trị thuộc tính sẽ bị xóa!')) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "Attribute")',
+                    type: 'POST',
+                    data: { 
+                        id: id,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra!');
+                    }
+                });
+            }
+        }
+    </script>
+}

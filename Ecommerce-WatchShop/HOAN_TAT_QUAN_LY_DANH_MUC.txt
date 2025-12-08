@@ -1,0 +1,174 @@
+═══════════════════════════════════════════════════════════════
+          HOÀN TẤT CẬP NHẬT QUẢN LÝ DANH MỤC VỚI HÌNH ẢNH
+═══════════════════════════════════════════════════════════════
+
+✅ ĐÃ CẬP NHẬT:
+
+1. BẢNG DANH SÁCH DANH MỤC:
+   ✓ Thêm cột "Hình ảnh" hiển thị thumbnail
+   ✓ Kích thước: 80x50px, bo góc, object-fit: cover
+   ✓ Hiển thị badge "Chưa có ảnh" nếu không có hình
+
+2. FORM THÊM DANH MỤC:
+   ✓ Trường upload hình ảnh
+   ✓ Gợi ý kích thước: 800x400px
+   ✓ Accept: image/*
+
+3. FORM SỬA DANH MỤC:
+   ✓ Trường upload hình ảnh mới
+   ✓ Hiển thị preview hình ảnh hiện tại
+   ✓ Gợi ý: "Để trống nếu không muốn thay đổi"
+
+4. CHỨC NĂNG TÌM KIẾM:
+   ✓ Kết quả tìm kiếm hiển thị hình ảnh
+   ✓ Cập nhật CategoryController trả về image
+
+5. JAVASCRIPT:
+   ✓ Hàm editCategory nhận thêm tham số imageUrl
+   ✓ Hiển thị preview hình ảnh khi sửa
+   ✓ FormData xử lý upload file
+
+───────────────────────────────────────────────────────────────
+
+📊 GIAO DIỆN BẢNG:
+
+┌────┬──────────┬────────────────┬──────────────┬──────────┬──────────┐
+│ ID │ Hình ảnh │ Tên danh mục   │ Slug         │ DM cha   │ Hành động│
+├────┼──────────┼────────────────┼──────────────┼──────────┼──────────┤
+│ 1  │ [IMG]    │ Laptop Gaming  │ laptop-ga... │ Không có │ ✏️ 🗑️   │
+│ 2  │ [IMG]    │ Laptop Văn...  │ laptop-va... │ Không có │ ✏️ 🗑️   │
+│ 3  │ [IMG]    │ Laptop Đồ Họa  │ laptop-do... │ Không có │ ✏️ 🗑️   │
+└────┴──────────┴────────────────┴──────────────┴──────────┴──────────┘
+
+───────────────────────────────────────────────────────────────
+
+🎨 HIỂN THỊ HÌNH ẢNH:
+
+Có hình ảnh:
+  <img src="/Images/abc.jpg" 
+       style="width: 80px; height: 50px; 
+              object-fit: cover; border-radius: 4px;">
+
+Không có hình ảnh:
+  <span class="badge bg-secondary">Chưa có ảnh</span>
+
+───────────────────────────────────────────────────────────────
+
+🔧 CHỨC NĂNG:
+
+THÊM DANH MỤC:
+1. Click "Thêm"
+2. Nhập tên danh mục
+3. Chọn danh mục cha (nếu có)
+4. Click "Choose File" → Chọn hình ảnh
+5. Click "Thêm"
+6. Hình ảnh hiển thị ngay trong bảng
+
+SỬA DANH MỤC:
+1. Click icon ✏️ (Sửa)
+2. Modal hiển thị:
+   - Tên danh mục hiện tại
+   - Danh mục cha hiện tại
+   - Preview hình ảnh hiện tại
+3. Có thể:
+   - Đổi tên
+   - Đổi danh mục cha
+   - Upload hình mới (hình cũ tự động xóa)
+   - Hoặc giữ nguyên hình cũ (không chọn file mới)
+4. Click "Lưu"
+
+TÌM KIẾM:
+1. Gõ từ khóa vào ô tìm kiếm
+2. Kết quả hiển thị real-time
+3. Bảng cập nhật với hình ảnh
+
+───────────────────────────────────────────────────────────────
+
+💾 LƯU TRỮ:
+
+Thư mục: wwwroot/Images/
+Tên file: GUID + extension (VD: abc-123-def.jpg)
+Database: Lưu đường dẫn đầy đủ (/Images/abc-123-def.jpg)
+
+Khi sửa:
+- Upload hình mới → Xóa hình cũ tự động
+- Không upload → Giữ nguyên hình cũ
+
+───────────────────────────────────────────────────────────────
+
+🎯 KIỂM TRA:
+
+1. Cập nhật database:
+   dotnet ef migrations add AddImageToDanhMuc
+   dotnet ef database update
+
+2. Chạy ứng dụng:
+   dotnet run
+
+3. Đăng nhập admin:
+   Username: admin
+   Password: admin123
+
+4. Vào "Quản lý Danh mục":
+   ✓ Xem cột "Hình ảnh" hiển thị thumbnail
+   ✓ Thử thêm danh mục mới với hình
+   ✓ Thử sửa danh mục và đổi hình
+   ✓ Thử tìm kiếm → Xem hình hiển thị
+
+───────────────────────────────────────────────────────────────
+
+📝 CODE QUAN TRỌNG:
+
+HIỂN THỊ HÌNH TRONG BẢNG:
+```cshtml
+@if (!string.IsNullOrEmpty(category.HinhAnh))
+{
+    <img src="@category.HinhAnh" alt="@category.TenDanhMuc" 
+         style="width: 80px; height: 50px; object-fit: cover; 
+                border-radius: 4px;">
+}
+else
+{
+    <span class="badge bg-secondary">Chưa có ảnh</span>
+}
+```
+
+HÀM EDIT VỚI PREVIEW:
+```javascript
+function editCategory(id, name, parentId, imageUrl) {
+    $('#EditCategoryId').val(id);
+    $('#EditCategoryName').val(name);
+    $('#EditParentId').val(parentId || "");
+    
+    if (imageUrl && imageUrl !== '') {
+        $('#currentImagePreview').html(`
+            <img src="${imageUrl}" alt="Current" 
+                 style="max-width: 200px; height: auto;">
+        `);
+    }
+    
+    $('#editCategoryModal').modal('show');
+}
+```
+
+───────────────────────────────────────────────────────────────
+
+💡 TIPS:
+
+1. Hình ảnh đẹp:
+   - Kích thước: 800x400px
+   - Tỷ lệ: 2:1
+   - Định dạng: JPG (nhẹ hơn PNG)
+   - Dung lượng: < 300KB
+
+2. Tối ưu hiển thị:
+   - object-fit: cover → Không bị méo
+   - border-radius: 4px → Bo góc đẹp
+   - width/height cố định → Đồng nhất
+
+3. UX tốt:
+   - Preview hình khi sửa
+   - Badge "Chưa có ảnh" rõ ràng
+   - Gợi ý kích thước cho user
+
+═══════════════════════════════════════════════════════════════

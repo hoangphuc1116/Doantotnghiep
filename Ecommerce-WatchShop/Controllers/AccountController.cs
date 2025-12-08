@@ -127,35 +127,56 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Order(int id)
+    public async Task<IActionResult> CancelOrder(int id, string reason)
     {
         var customerIdClaim = User.Claims.FirstOrDefault(c => c.Type == "MaKhachHang");
-        if (customerIdClaim == null) return RedirectToAction("Index", "Home");
+        if (customerIdClaim == null) return Json(new { success = false, message = "Vui lòng đăng nhập!" });
 
         if (!int.TryParse(customerIdClaim.Value, out int customerId))
-            return BadRequest("Customer ID không hợp lệ.");
+            return Json(new { success = false, message = "Customer ID không hợp lệ." });
 
-        var bill = await _context.HoaDons.FirstOrDefaultAsync(b => b.MaHoaDon == id);
+        var bill = await _context.HoaDons.FirstOrDefaultAsync(b => b.MaHoaDon == id && b.MaKhachHang == customerId);
 
         if (bill == null)
         {
-            return NotFound();
+            return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
         }
 
-        if (bill.TrangThai == 2)
+        // Chỉ cho phép hủy khi đơn hàng chưa xác nhận (TrangThai = 0)
+        if (bill.TrangThai != 0)
         {
-            TempData["error"] = "Đơn hàng đã thanh toán, không thể hủy.";
-            return RedirectToAction("Order");
+            return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng chưa được xác nhận!" });
         }
 
-        bill.TrangThai = 3;
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Json(new { success = false, message = "Vui lòng chọn lý do hủy đơn!" });
+        }
+
+        bill.DaYeuCauHuy = true;
+        bill.YeuCauHuy = reason;
+        bill.NgayYeuCauHuy = DateTime.Now;
+        bill.TrangThai = 4; // 4 = Đã hủy
+
+        // Hoàn trả số lượng sản phẩm vào kho
+        var orderDetails = await _context.ChiTietHoaDons
+            .Where(ct => ct.MaHoaDon == id)
+            .ToListAsync();
+
+        foreach (var detail in orderDetails)
+        {
+            var product = await _context.SanPhams.FindAsync(detail.MaSanPham);
+            if (product != null)
+            {
+                product.SoLuong += detail.SoLuong; // Cộng lại số lượng
+                _context.SanPhams.Update(product);
+            }
+        }
 
         _context.HoaDons.Update(bill);
         await _context.SaveChangesAsync();
 
-        TempData["success"] = "Đơn hàng đã được hủy thành công.";
-
-        return RedirectToAction("Order");
+        return Json(new { success = true, message = "Đơn hàng đã được hủy thành công!" });
     }
 
     [HttpGet]

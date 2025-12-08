@@ -32,7 +32,7 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h4>@Model.Count(x => x.TrangThai == 1)</h4>
+                                    <h4>@Model.Count(x => x.TrangThai == 0)</h4>
                                     <p>Chờ xác nhận</p>
                                 </div>
                             </div>
@@ -43,34 +43,44 @@
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h4>@Model.Count(x => x.TrangThai == 2)</h4>
+                                    <h4>@Model.Count(x => x.TrangThai == 1)</h4>
                                     <p>Đã xác nhận</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h4>@Model.Count(x => x.TrangThai == 2)</h4>
+                                    <p>Đang giao</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="stat-card bg-success">
                                 <div class="stat-icon">
-                                    <i class="fas fa-cog"></i>
+                                    <i class="fas fa-check-circle"></i>
                                 </div>
                                 <div class="stat-content">
                                     <h4>@Model.Count(x => x.TrangThai == 3)</h4>
-                                    <p>Đang xử lý</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card bg-danger">
-                                <div class="stat-icon">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h4>@Model.Count(x => x.TrangThai == 4)</h4>
-                                    <p>Đã hủy</p>
+                                    <p>Hoàn thành</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Thống kê đơn hủy -->
+                    @if (Model.Any(x => x.TrangThai == 4))
+                    {
+                        <div class="alert alert-danger mb-4">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Đơn hàng đã hủy:</strong> @Model.Count(x => x.TrangThai == 4) đơn
+                            <a asp-action="Index" asp-route-status="4" class="btn btn-sm btn-outline-danger ms-2">Xem chi tiết</a>
+                        </div>
+                    }
 
                     <!-- Bộ lọc -->
                     <div class="filter-section mb-3">
@@ -78,9 +88,10 @@
                             <div class="col-md-3">
                                 <select class="form-select" id="statusFilter">
                                     <option value="">Tất cả trạng thái</option>
-                                    <option value="1">Chờ xác nhận</option>
-                                    <option value="2">Đã xác nhận</option>
-                                    <option value="3">Đang xử lý</option>
+                                    <option value="0">Chờ xác nhận</option>
+                                    <option value="1">Đã xác nhận</option>
+                                    <option value="2">Đang giao</option>
+                                    <option value="3">Hoàn thành</option>
                                     <option value="4">Đã hủy</option>
                                 </select>
                             </div>
@@ -151,17 +162,30 @@
                                             <td>
                                                 @switch (bill.TrangThai)
                                                 {
-                                                    case 1:
+                                                    case 0:
                                                         <span class="badge bg-warning">Chờ xác nhận</span>
                                                         break;
-                                                    case 2:
+                                                    case 1:
                                                         <span class="badge bg-info">Đã xác nhận</span>
                                                         break;
+                                                    case 2:
+                                                        <span class="badge bg-primary">Đang giao</span>
+                                                        break;
                                                     case 3:
-                                                        <span class="badge bg-success">Đang xử lý</span>
+                                                        <span class="badge bg-success">Hoàn thành</span>
                                                         break;
                                                     case 4:
-                                                        <span class="badge bg-danger">Đã hủy</span>
+                                                        <div>
+                                                            <span class="badge bg-danger">Đã hủy</span>
+                                                            @if (!string.IsNullOrEmpty(bill.YeuCauHuy))
+                                                            {
+                                                                <br>
+                                                                <small class="text-muted" title="@bill.YeuCauHuy">
+                                                                    <i class="fas fa-info-circle"></i> 
+                                                                    @(bill.YeuCauHuy.Length > 30 ? bill.YeuCauHuy.Substring(0, 30) + "..." : bill.YeuCauHuy)
+                                                                </small>
+                                                            }
+                                                        </div>
                                                         break;
                                                     default:
                                                         <span class="badge bg-secondary">Không xác định</span>
@@ -173,36 +197,55 @@
                                                     <a asp-action="Details" asp-route-id="@bill.MaHoaDon" class="btn btn-primary btn-sm" title="Xem chi tiết">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    @if (bill.TrangThai != 4)
+                                                    @if (bill.TrangThai != 4 && bill.TrangThai != 3)
                                                     {
                                                         <div class="btn-group">
                                                             <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="Cập nhật trạng thái">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
                                                             <ul class="dropdown-menu">
+                                                                @if (bill.TrangThai == 0)
+                                                                {
+                                                                    <li>
+                                                                        <a class="dropdown-item" href="#" onclick="updateStatus(@bill.MaHoaDon, 1)">
+                                                                            <i class="fas fa-check text-info"></i> Xác nhận đơn hàng
+                                                                        </a>
+                                                                    </li>
+                                                                    <li><hr class="dropdown-divider"></li>
+                                                                }
                                                                 @if (bill.TrangThai == 1)
                                                                 {
                                                                     <li>
                                                                         <a class="dropdown-item" href="#" onclick="updateStatus(@bill.MaHoaDon, 2)">
-                                                                            <i class="fas fa-check text-info"></i> Xác nhận đơn hàng
+                                                                            <i class="fas fa-truck text-primary"></i> Bắt đầu giao hàng
                                                                         </a>
                                                                     </li>
+                                                                    <li><hr class="dropdown-divider"></li>
                                                                 }
                                                                 @if (bill.TrangThai == 2)
                                                                 {
                                                                     <li>
                                                                         <a class="dropdown-item" href="#" onclick="updateStatus(@bill.MaHoaDon, 3)">
-                                                                            <i class="fas fa-cog text-success"></i> Bắt đầu xử lý
+                                                                            <i class="fas fa-check-circle text-success"></i> Hoàn thành đơn hàng
                                                                         </a>
                                                                     </li>
+                                                                    <li><hr class="dropdown-divider"></li>
                                                                 }
                                                                 <li>
-                                                                    <a class="dropdown-item text-danger" href="#" onclick="updateStatus(@bill.MaHoaDon, 4)">
+                                                                    <a class="dropdown-item text-danger" href="#" onclick="confirmCancel(@bill.MaHoaDon)">
                                                                         <i class="fas fa-times"></i> Hủy đơn hàng
                                                                     </a>
                                                                 </li>
                                                             </ul>
                                                         </div>
+                                                    }
+                                                    else if (bill.TrangThai == 4)
+                                                    {
+                                                        <span class="badge bg-secondary">Đã hủy</span>
+                                                    }
+                                                    else if (bill.TrangThai == 3)
+                                                    {
+                                                        <span class="badge bg-success">Hoàn thành</span>
                                                     }
                                                 </div>
                                             </td>
@@ -295,7 +338,15 @@
     </style>
     <script>
         function updateStatus(orderId, status) {
-            if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái đơn hàng này?')) {
+            var statusText = '';
+            switch(status) {
+                case 1: statusText = 'xác nhận'; break;
+                case 2: statusText = 'bắt đầu giao'; break;
+                case 3: statusText = 'hoàn thành'; break;
+                case 4: statusText = 'hủy'; break;
+            }
+            
+            if (confirm('Bạn có chắc chắn muốn ' + statusText + ' đơn hàng này?')) {
                 var form = document.createElement('form');
                 form.method = 'post';
                 form.action = '@Url.Action("UpdateStatus", "Bill")';
@@ -314,6 +365,12 @@
                 form.appendChild(statusInput);
                 document.body.appendChild(form);
                 form.submit();
+            }
+        }
+
+        function confirmCancel(orderId) {
+            if (confirm('Bạn có chắc chắn muốn HỦY đơn hàng này?\n\nLưu ý: Hành động này không thể hoàn tác!')) {
+                updateStatus(orderId, 4);
             }
         }
 

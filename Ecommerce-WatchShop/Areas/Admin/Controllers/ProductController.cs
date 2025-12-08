@@ -50,9 +50,9 @@ namespace Ecommerce_WatchShop.Areas.Admin.Controllers
             }
 
             // Kiểm tra MaDanhMuc và MaThuongHieu có hợp lệ không
-            if (product.MaDanhMuc == null || product.MaThuongHieu == null || string.IsNullOrEmpty(product.GioiTinh) || string.IsNullOrEmpty(product.MoTaNgan) || string.IsNullOrEmpty(product.ThongSoKyThuat))
+            if (product.MaDanhMuc == null || product.MaThuongHieu == null || string.IsNullOrEmpty(product.MoTaNgan) || string.IsNullOrEmpty(product.ThongSoKyThuat))
             {
-                TempData["error"] = "Vui lòng điền đầy đủ thông tin (danh mục, thương hiệu, giới tính, mô tả ngắn, thông số kỹ thuật).";
+                TempData["error"] = "Vui lòng điền đầy đủ thông tin (danh mục, thương hiệu, mô tả ngắn, thông số kỹ thuật).";
                 ViewBag.ThuongHieuId = new SelectList(await _context.ThuongHieus.ToListAsync(), "MaThuongHieu", "TenThuongHieu", product.MaThuongHieu);
                 ViewBag.DanhMucId = new SelectList(await _context.DanhMucs.ToListAsync(), "MaDanhMuc", "TenDanhMuc", product.MaDanhMuc);
                 return View(product);
@@ -138,12 +138,6 @@ namespace Ecommerce_WatchShop.Areas.Admin.Controllers
 
             ViewBag.ThuongHieuId = new SelectList(await _context.ThuongHieus.ToListAsync(), "MaThuongHieu", "TenThuongHieu", product.MaThuongHieu);
             ViewBag.DanhMucId = new SelectList(await _context.DanhMucs.ToListAsync(), "MaDanhMuc", "TenDanhMuc", product.MaDanhMuc);
-            ViewBag.GioiTinhList = new SelectList(new List<SelectListItem>
-            {
-                new SelectListItem { Value = "Nam", Text = "Nam" },
-                new SelectListItem { Value = "Nữ", Text = "Nữ" },
-                new SelectListItem { Value = "Unisex", Text = "Unisex" }
-            }, "Value", "Text", product.GioiTinh);
             return View(product);
         }
 
@@ -181,7 +175,6 @@ namespace Ecommerce_WatchShop.Areas.Admin.Controllers
                 existingProduct.MaThuongHieu = product.MaThuongHieu;
                 existingProduct.MaDanhMuc = product.MaDanhMuc;
                 existingProduct.ThongSoKyThuat = product.ThongSoKyThuat;
-                existingProduct.GioiTinh = product.GioiTinh;
                 existingProduct.MoTaNgan = product.MoTaNgan;
                 existingProduct.PhanTramKhuyenMai = product.PhanTramKhuyenMai;
 

@@ -97,28 +97,33 @@
                         @await Component.InvokeAsync("MenuBrand")
                         @await Component.InvokeAsync("MenuCategory")
 
-                        <!-- Gender Filter -->
-                        <div class="sidebar-single-widget mb-4">
-                            <div class="sidebar-widget-header">
-                                <h6 class="sidebar-title">Giới tính</h6>
-                            </div>
-                            <div class="sidebar-widget-content">
-                                <div class="filter-options">
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" class="form-check-input" name="gender" value="1" id="genderMale">
-                                        <label class="form-check-label" for="genderMale">Nam</label>
+                        <!-- Attribute Filters -->
+                        @if (ViewBag.Attributes != null)
+                        {
+                            var attributes = ViewBag.Attributes as List<Ecommerce_WatchShop.Models.ThuocTinhSanPham>;
+                            if (attributes != null && attributes.Any())
+                            {
+                                foreach (var attr in attributes)
+                                {
+                                    <div class="sidebar-single-widget mb-4">
+                                        <div class="sidebar-widget-header">
+                                            <h6 class="sidebar-title">@attr.TenThuocTinh</h6>
+                                        </div>
+                                        <div class="sidebar-widget-content">
+                                            <div class="filter-options">
+                                                @foreach (var value in attr.GiaTriThuocTinhs.OrderBy(v => v.ThuTuHienThi))
+                                                {
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input" name="attributeValues" value="@value.MaGiaTri" id="attr_@value.MaGiaTri">
+                                                        <label class="form-check-label" for="attr_@value.MaGiaTri">@value.GiaTri</label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" class="form-check-input" name="gender" value="2" id="genderFemale">
-                                        <label class="form-check-label" for="genderFemale">Nữ</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="gender" value="3" id="genderUnisex">
-                                        <label class="form-check-label" for="genderUnisex">Unisex</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                }
+                            }
+                        }
 
                         <!-- Price Filter -->
                         <div class="sidebar-single-widget mb-4">
@@ -431,15 +436,54 @@
 
     .filter-options .form-check {
         padding-left: 0;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
     }
 
     .form-check-input {
-        margin-right: 10px;
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        border: 2px solid #b19361;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
     }
 
+        .form-check-input:hover {
+            border-color: #9d8052;
+            box-shadow: 0 0 0 3px rgba(177, 147, 97, 0.1);
+        }
+
+        .form-check-input:checked {
+            background-color: #b19361;
+            border-color: #b19361;
+            box-shadow: 0 0 0 3px rgba(177, 147, 97, 0.2);
+        }
+
+        .form-check-input:focus {
+            border-color: #b19361;
+            box-shadow: 0 0 0 0.2rem rgba(177, 147, 97, 0.25);
+        }
+
     .form-check-label {
-        color: #666;
-        font-size: 14px;
+        color: #333;
+        font-size: 15px;
+        cursor: pointer;
+        user-select: none;
+        line-height: 1.4;
+        transition: color 0.3s ease;
+    }
+
+        .form-check-label:hover {
+            color: #b19361;
+        }
+
+    .form-check-input:checked + .form-check-label {
+        color: #b19361;
+        font-weight: 500;
     }
 
     .btn-golden {

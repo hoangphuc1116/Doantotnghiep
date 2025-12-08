@@ -1,0 +1,139 @@
+═══════════════════════════════════════════════════════════════
+            CẬP NHẬT DANH MỤC VỚI HÌNH ẢNH - HOÀN TẤT
+═══════════════════════════════════════════════════════════════
+
+✅ ĐÃ CẬP NHẬT:
+
+1. MODEL DanhMuc:
+   ✓ Thêm trường HinhAnh (varchar(255))
+
+2. SEEDDATA:
+   ✓ Laptop Gaming → /Images/default-large.jpg
+   ✓ Laptop Văn Phòng → /Images/Artboard-1.jpg
+   ✓ Laptop Đồ Họa → /Images/ricky-kharawala-Yka2yhGJwjc-unsplash 1.png
+
+3. HOMECONTROLLER:
+   ✓ Truyền danh mục vào ViewBag.Categories
+
+4. HOME/INDEX.CSHTML:
+   ✓ Hiển thị danh mục động từ database
+   ✓ Hiển thị hình ảnh từ database
+   ✓ Link đến trang sản phẩm theo danh mục
+
+5. ADMIN - CATEGORYCONTROLLER:
+   ✓ Thêm chức năng upload hình ảnh khi tạo danh mục
+   ✓ Thêm chức năng upload hình ảnh khi sửa danh mục
+   ✓ Tự động xóa hình cũ khi upload hình mới
+
+6. ADMIN - CATEGORY/INDEX.CSHTML:
+   ✓ Thêm trường upload hình ảnh trong form "Thêm"
+   ✓ Thêm trường upload hình ảnh trong form "Sửa"
+   ✓ Cập nhật JavaScript xử lý FormData
+
+───────────────────────────────────────────────────────────────
+
+🚀 CẬP NHẬT DATABASE:
+
+Bước 1: Tạo migration mới
+   dotnet ef migrations add AddImageToDanhMuc
+
+Bước 2: Cập nhật database
+   dotnet ef database update
+
+Hoặc dùng script tự động:
+   .\update-database.ps1
+
+───────────────────────────────────────────────────────────────
+
+📝 CÁCH SỬ DỤNG TRONG ADMIN:
+
+THÊM DANH MỤC MỚI:
+1. Đăng nhập admin: admin / admin123
+2. Vào: Quản lý Danh mục
+3. Click "Thêm"
+4. Điền thông tin:
+   - Tên danh mục: VD "Laptop Ultrabook"
+   - Danh mục cha: Chọn hoặc để trống
+   - Hình ảnh: Click "Choose File" → Chọn ảnh
+5. Click "Thêm"
+6. Danh mục mới sẽ hiển thị trên trang chủ
+
+SỬA DANH MỤC:
+1. Click icon "Sửa" trên danh mục cần đổi
+2. Thay đổi thông tin
+3. Upload hình mới (hoặc để trống giữ hình cũ)
+4. Click "Lưu"
+
+───────────────────────────────────────────────────────────────
+
+🖼️ KHUYẾN NGHỊ HÌNH ẢNH:
+
+Kích thước: 800x400px (tỷ lệ 2:1)
+Định dạng: JPG, PNG
+Dung lượng: < 300KB
+Chất lượng: Rõ nét, đẹp mắt
+
+Ví dụ hình ảnh theo danh mục:
+- Laptop Gaming: Laptop với đèn RGB, thiết kế gaming
+- Laptop Văn Phòng: Laptop mỏng nhẹ, văn phòng
+- Laptop Đồ Họa: Laptop với màn hình đẹp, màu sắc
+
+───────────────────────────────────────────────────────────────
+
+📁 CẤU TRÚC DATABASE:
+
+Bảng: DanhMuc
+├─ MaDanhMuc (int, PK)
+├─ TenDanhMuc (nvarchar(100))
+├─ MaDanhMucCha (int, nullable)
+├─ Slug (varchar(100))
+└─ HinhAnh (varchar(255)) ← MỚI THÊM
+
+───────────────────────────────────────────────────────────────
+
+🎯 KIỂM TRA:
+
+1. Cập nhật database:
+   dotnet ef database update
+
+2. Chạy ứng dụng:
+   dotnet run
+
+3. Kiểm tra trang chủ:
+   ✓ Cuộn xuống phần danh mục
+   ✓ Xem 3 banner danh mục với hình ảnh
+   ✓ Click "Xem ngay" → Chuyển đến trang sản phẩm
+
+4. Kiểm tra admin:
+   ✓ Đăng nhập admin
+   ✓ Vào Quản lý Danh mục
+   ✓ Thử thêm danh mục mới với hình ảnh
+   ✓ Thử sửa danh mục và đổi hình ảnh
+
+───────────────────────────────────────────────────────────────
+
+💡 LƯU Ý:
+
+1. Hình ảnh được lưu vào: wwwroot/Images/
+2. Tên file tự động: GUID + extension (VD: abc123.jpg)
+3. Khi sửa danh mục, hình cũ tự động bị xóa
+4. Nếu không upload hình mới khi sửa, hình cũ được giữ nguyên
+5. Hình ảnh mặc định: /Images/default-image.jpg
+
+───────────────────────────────────────────────────────────────
+
+🔧 TROUBLESHOOTING:
+
+Lỗi: "Hình ảnh không hiển thị"
+→ Kiểm tra đường dẫn trong database
+→ Kiểm tra file có tồn tại trong wwwroot/Images/
+
+Lỗi: "Không upload được hình"
+→ Kiểm tra quyền ghi vào thư mục wwwroot/Images/
+→ Kiểm tra kích thước file (< 5MB)
+
+Lỗi: "Migration failed"
+→ Xóa database: dotnet ef database drop --force
+→ Tạo lại: dotnet ef database update
+
+═══════════════════════════════════════════════════════════════

@@ -85,7 +85,9 @@ namespace Ecommerce_WatchShop.Helper
         {
             Product,
             Category,
-            Brand
+            Brand,
+            Attribute,
+            AttributeValue
         }
 
         public static async Task<string> GenerateUniqueSlug(DongHoContext context, string name, EntityType entityType, int? entityId = null)
@@ -118,6 +120,16 @@ namespace Ecommerce_WatchShop.Helper
                         exists = await context.ThuongHieus
                             .AsNoTracking()
                             .AnyAsync(b => b.Slug == slug && (entityId == null || b.MaThuongHieu != entityId));
+                        break;
+                    case EntityType.Attribute:
+                        exists = await context.ThuocTinhSanPhams
+                            .AsNoTracking()
+                            .AnyAsync(a => a.Slug == slug && (entityId == null || a.MaThuocTinh != entityId));
+                        break;
+                    case EntityType.AttributeValue:
+                        exists = await context.GiaTriThuocTinhs
+                            .AsNoTracking()
+                            .AnyAsync(v => v.Slug == slug && (entityId == null || v.MaGiaTri != entityId));
                         break;
                 }
 

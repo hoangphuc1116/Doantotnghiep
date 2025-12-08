@@ -24,6 +24,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         var sliders = await _context.Sliders.Where(s => s.TrangThai).OrderBy(s => s.ThuTuHienThi).ToListAsync();
+        ViewBag.Categories = await _context.DanhMucs.Where(c => c.MaDanhMucCha == null).OrderBy(c => c.MaDanhMuc).ToListAsync();
         return View(sliders);
     }
 

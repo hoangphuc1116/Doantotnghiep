@@ -1,4 +1,4 @@
-﻿using Ecommerce_WatchShop.Models;
+using Ecommerce_WatchShop.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce_WatchShop
@@ -8,6 +8,71 @@ namespace Ecommerce_WatchShop
         public static async Task SeedingData(DongHoContext _context)
         {
             await _context.Database.MigrateAsync();
+            
+            // Seed Vai Trò
+            if (!_context.VaiTros.Any())
+            {
+                VaiTro khachHang = new VaiTro { Loai = "Khách hàng" };
+                VaiTro admin = new VaiTro { Loai = "Admin" };
+
+                await _context.VaiTros.AddRangeAsync(khachHang, admin);
+                await _context.SaveChangesAsync();
+            }
+
+            // Seed Tài Khoản
+            if (!_context.TaiKhoans.Any())
+            {
+                var roleKhachHang = _context.VaiTros.FirstOrDefault(r => r.Loai == "Khách hàng");
+                var roleAdmin = _context.VaiTros.FirstOrDefault(r => r.Loai == "Admin");
+
+                // Tài khoản Admin
+                TaiKhoan adminAccount = new TaiKhoan
+                {
+                    TenDangNhap = "admin",
+                    MatKhau = "admin123",
+                    MaVaiTro = roleAdmin.MaVaiTro
+                };
+
+                // Tài khoản User mẫu
+                TaiKhoan userAccount = new TaiKhoan
+                {
+                    TenDangNhap = "user",
+                    MatKhau = "user123",
+                    MaVaiTro = roleKhachHang.MaVaiTro
+                };
+
+                await _context.TaiKhoans.AddRangeAsync(adminAccount, userAccount);
+                await _context.SaveChangesAsync();
+
+                // Tạo Khách Hàng cho tài khoản user
+                KhachHang khachHangUser = new KhachHang
+                {
+                    MaTaiKhoan = userAccount.MaTaiKhoan,
+                    TenHienThi = "Người dùng mẫu",
+                    HoTen = "Nguyễn Văn A",
+                    Email = "user@example.com",
+                    SoDienThoai = "0123456789",
+                    DiaChi = "123 Đường ABC, Quận 1, TP.HCM",
+                    GioiTinh = true,
+                    NgaySinh = new DateOnly(1990, 1, 1)
+                };
+
+                // Tạo Khách Hàng cho tài khoản admin
+                KhachHang khachHangAdmin = new KhachHang
+                {
+                    MaTaiKhoan = adminAccount.MaTaiKhoan,
+                    TenHienThi = "Administrator",
+                    HoTen = "Admin System",
+                    Email = "admin@laptopshop.com",
+                    SoDienThoai = "0987654321",
+                    DiaChi = "Văn phòng quản trị",
+                    GioiTinh = true
+                };
+
+                await _context.KhachHangs.AddRangeAsync(khachHangUser, khachHangAdmin);
+                await _context.SaveChangesAsync();
+            }
+
             if (!_context.ThuongHieus.Any())
             {
                 ThuongHieu dell = new ThuongHieu { TenThuongHieu = "Dell", Slug = "dell" };
@@ -22,38 +87,23 @@ namespace Ecommerce_WatchShop
             if (!_context.DanhMucs.Any())
             {
 
-                DanhMuc laptopGaming = new DanhMuc { TenDanhMuc = "Laptop Gaming", MaDanhMucCha = null, Slug = "laptop-gaming" };
-                DanhMuc laptopVanPhong = new DanhMuc { TenDanhMuc = "Laptop VÄƒn PhÃ²ng", MaDanhMucCha = null, Slug = "laptop-van-phong" };
-                DanhMuc laptopDoHoa = new DanhMuc { TenDanhMuc = "Laptop Äá»“ Há»a", MaDanhMucCha = null, Slug = "laptop-do-hoa" };
+                DanhMuc laptopGaming = new DanhMuc { TenDanhMuc = "Laptop Gaming", MaDanhMucCha = null, Slug = "laptop-gaming", HinhAnh = "/Images/default-large.jpg" };
+                DanhMuc laptopVanPhong = new DanhMuc { TenDanhMuc = "Laptop Văn Phòng", MaDanhMucCha = null, Slug = "laptop-van-phong", HinhAnh = "/Images/Artboard-1.jpg" };
+                DanhMuc laptopDoHoa = new DanhMuc { TenDanhMuc = "Laptop Đồ Họa", MaDanhMucCha = null, Slug = "laptop-do-hoa", HinhAnh = "/Images/ricky-kharawala-Yka2yhGJwjc-unsplash 1.png" };
 
                 await _context.DanhMucs.AddRangeAsync(laptopGaming, laptopVanPhong, laptopDoHoa);
                 await _context.SaveChangesAsync();
             }
-            //if (!_context.Suppliers.Any())
-            //{
-            //    Supplier citizen_supplier = new Supplier { Name = "CÃ´ng ty Citizen Watch", SoDienThoai = "(800) 321-1023", Information = "CÃ”NG TY CITIZEN WATCH lÃ  má»™t nhÃ  sáº£n xuáº¥t thá»±c sá»± vá»›i má»™t quy trÃ¬nh sáº£n xuáº¥t toÃ n diá»‡n", DiaChi = "6-1-12, Tanashi-cho, Nishi-Tokyo-shi, Tokyo 188-8511, Japan" };
-            //    Supplier doxa_supplier = new Supplier { Name = "CÃ´ng ty Doxa", SoDienThoai = "1-520-369 -872", Information = "ThÆ°Æ¡ng hiá»‡u Ä‘á»“ng há»“ Doxa ná»•i tiáº¿ng cá»§a Thuá»µ SÄ© Ä‘Æ°á»£c ra máº¯t vá»›i cÃ´ng chÃºng vÃ o nÄƒm 1889 bá»Ÿi má»™t nghá»‡ nhÃ¢n cháº¿ tÃ¡c Ä‘á»“ng há»“ tráº» tuá»•i", DiaChi = "Rue de Zurich 23A, 2500 Biel/Bienne, Switzerland" };
-            //    Supplier curnon_supplier = new Supplier { Name = "CÃ´ng ty Curnon", SoDienThoai = "0868889103", Information = "Vá»›i nhá»¯ng sáº£n pháº©m Ä‘Æ°á»£c thiáº¿t káº¿ báº±ng nhiá»‡t huyáº¿t, khÃ¡t khao vÃ  khá»‘i Ã³c Ä‘áº§y sÃ¡ng táº¡o cá»§a Ä‘á»™i ngÅ© chÃ­nh nhá»¯ng ngÆ°á»i tráº» Viá»‡t Nam.", DiaChi = "25 Nguyá»…n TrÃ£i, P.Báº¿n ThÃ nh, Quáº­n 1." };
-            //    Supplier seiko_supplier = new Supplier { Name = "CÃ´ng ty Seiko", SoDienThoai = "81-3-3563-2111", Information = "CÃ´ng ty Nháº­t Báº£n thÃ nh láº­p vÃ o nÄƒm 1881; ná»•i tiáº¿ng trong lÄ©nh vá»±c sáº£n xuáº¥t vÃ  mua bÃ¡n Ä‘á»“ng há»“, thiáº¿t bá»‹ Ä‘iá»‡n tá»­", DiaChi = "1-8 Nakase, Mihama-ku, Chiba-shi, Chiba 261-8507, Japan" };
-
-            //    await _context.Suppliers.AddRangeAsync(citizen_supplier, doxa_supplier, curnon_supplier, seiko_supplier);
-            //    await _context.SaveChangesAsync();
-            //}
             if (!_context.SanPhams.Any())
             {
                 var laptopGaming = _context.DanhMucs.FirstOrDefault(c => c.TenDanhMuc == "Laptop Gaming");
-                var laptopVanPhong = _context.DanhMucs.FirstOrDefault(c => c.TenDanhMuc == "Laptop VÄƒn PhÃ²ng");
-                var laptopDoHoa = _context.DanhMucs.FirstOrDefault(c => c.TenDanhMuc == "Laptop Äá»“ Há»a");
+                var laptopVanPhong = _context.DanhMucs.FirstOrDefault(c => c.TenDanhMuc == "Laptop Văn Phòng");
+                var laptopDoHoa = _context.DanhMucs.FirstOrDefault(c => c.TenDanhMuc == "Laptop Đồ Họa");
 
                 var dell = _context.ThuongHieus.FirstOrDefault(b => b.TenThuongHieu == "Dell");
                 var hp = _context.ThuongHieus.FirstOrDefault(b => b.TenThuongHieu == "HP");
                 var lenovo = _context.ThuongHieus.FirstOrDefault(b => b.TenThuongHieu == "Lenovo");
                 var asus = _context.ThuongHieus.FirstOrDefault(b => b.TenThuongHieu == "Asus");
-
-                //var citizen_supplier = _context.Suppliers.FirstOrDefault(s => s.Name == "CÃ´ng ty Citizen Watch");
-                //var doxa_supplier = _context.Suppliers.FirstOrDefault(s => s.Name == "CÃ´ng ty Doxa");
-                //var curnon_supplier = _context.Suppliers.FirstOrDefault(s => s.Name == "CÃ´ng ty Curnon");
-                //var seiko_supplier = _context.Suppliers.FirstOrDefault(s => s.Name == "CÃ´ng ty Seiko");
 
                 await _context.SanPhams.AddRangeAsync(
                     new SanPham
@@ -62,11 +112,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Lenovo Legion 5",
                         MaDanhMuc = laptopGaming.MaDanhMuc,
                         MaThuongHieu = lenovo.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 25990000,
-                        MoTaNgan = "Laptop gaming máº¡nh máº½ vá»›i hiá»‡u nÄƒng vÆ°á»£t trá»™i",
-                        MoTa = "Lenovo Legion 5 lÃ  laptop gaming cao cáº¥p vá»›i thiáº¿t káº¿ hiá»‡n Ä‘áº¡i, trang bá»‹ chip AMD Ryzen 7, card Ä‘á»“ há»a RTX 3060, mÃ n hÃ¬nh 15.6 inch 165Hz mang Ä‘áº¿n tráº£i nghiá»‡m gaming mÆ°á»£t mÃ .",
-                        ThongSoKyThuat = "CPU: AMD Ryzen 7 5800H<br>RAM: 16GB DDR4<br>á»” cá»©ng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3060 6GB<br>MÃ n hÃ¬nh: 15.6 inch FHD 165Hz<br>Pin: 80Wh<br>Trá»ng lÆ°á»£ng: 2.4kg",
+                        MoTaNgan = "Laptop gaming mạnh mẽ với hiệu năng vượt trội",
+                        MoTa = "Lenovo Legion 5 là laptop gaming cao cấp với thiết kế hiện đại, trang bị chip AMD Ryzen 7, card đồ họa RTX 3060, màn hình 15.6 inch 165Hz mang đến trải nghiệm gaming mượt mà.",
+                        ThongSoKyThuat = "CPU: AMD Ryzen 7 5800H<br>RAM: 16GB DDR4<br>Ổ cứng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3060 6GB<br>Màn hình: 15.6 inch FHD 165Hz<br>Pin: 80Wh<br>Trọng lượng: 2.4kg",
                         SoLuong = 10,
                         TrangThai = 1,
                         LuotXem = 1000,
@@ -81,11 +130,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Dell Inspiron 15 3520",
                         MaDanhMuc = laptopVanPhong.MaDanhMuc,
                         MaThuongHieu = dell.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 15990000,
-                        MoTaNgan = "Dell Inspiron 15 3520 â€“ Laptop vÄƒn phÃ²ng hiá»‡u suáº¥t cao, thiáº¿t káº¿ thanh lá»‹ch",
-                        MoTa = "Dell Inspiron 15 3520 lÃ  laptop vÄƒn phÃ²ng lÃ½ tÆ°á»Ÿng vá»›i thiáº¿t káº¿ má»ng nháº¹, hiá»‡u nÄƒng á»•n Ä‘á»‹nh tá»« Intel Core i5 tháº¿ há»‡ 12, phÃ¹ há»£p cho cÃ´ng viá»‡c vÄƒn phÃ²ng vÃ  há»c táº­p.",
-                        ThongSoKyThuat = "CPU: Intel Core i5-1235U<br>RAM: 8GB DDR4<br>á»” cá»©ng: 256GB SSD<br>VGA: Intel UHD Graphics<br>MÃ n hÃ¬nh: 15.6 inch FHD<br>Pin: 41Wh<br>Trá»ng lÆ°á»£ng: 1.85kg",
+                        MoTaNgan = "Dell Inspiron 15 3520 - Laptop văn phòng hiệu suất cao, thiết kế thanh lịch",
+                        MoTa = "Dell Inspiron 15 3520 là laptop văn phòng lý tưởng với thiết kế mỏng nhẹ, hiệu năng ổn định từ Intel Core i5 thế hệ 12, phù hợp cho công việc văn phòng và học tập.",
+                        ThongSoKyThuat = "CPU: Intel Core i5-1235U<br>RAM: 8GB DDR4<br>Ổ cứng: 256GB SSD<br>VGA: Intel UHD Graphics<br>Màn hình: 15.6 inch FHD<br>Pin: 41Wh<br>Trọng lượng: 1.85kg",
                         SoLuong = 12,
                         TrangThai = 1,
                         LuotXem = 50,
@@ -100,11 +148,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Asus ROG Strix G15",
                         MaDanhMuc = laptopGaming.MaDanhMuc,
                         MaThuongHieu = asus.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 32990000,
-                        MoTaNgan = "Asus ROG Strix G15 â€“ Laptop gaming cao cáº¥p vá»›i hiá»‡u nÄƒng Ä‘á»‰nh cao",
-                        MoTa = "Asus ROG Strix G15 lÃ  laptop gaming cao cáº¥p vá»›i thiáº¿t káº¿ ROG Ä‘áº·c trÆ°ng, trang bá»‹ Intel Core i7 tháº¿ há»‡ 12, RTX 3070 Ti, mÃ n hÃ¬nh 300Hz mang Ä‘áº¿n tráº£i nghiá»‡m gaming Ä‘á»‰nh cao.",
-                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>á»” cá»©ng: 1TB SSD NVMe<br>VGA: NVIDIA RTX 3070 Ti 8GB<br>MÃ n hÃ¬nh: 15.6 inch FHD 300Hz<br>Pin: 90Wh<br>Trá»ng lÆ°á»£ng: 2.3kg",
+                        MoTaNgan = "Asus ROG Strix G15 - Laptop gaming cao cấp với hiệu năng đỉnh cao",
+                        MoTa = "Asus ROG Strix G15 là laptop gaming cao cấp với thiết kế ROG đặc trưng, trang bị Intel Core i7 thế hệ 12, RTX 3070 Ti, màn hình 300Hz mang đến trải nghiệm gaming đỉnh cao.",
+                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>Ổ cứng: 1TB SSD NVMe<br>VGA: NVIDIA RTX 3070 Ti 8GB<br>Màn hình: 15.6 inch FHD 300Hz<br>Pin: 90Wh<br>Trọng lượng: 2.3kg",
                         SoLuong = 6,
                         TrangThai = 1,
                         LuotXem = 100,
@@ -119,11 +166,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "HP Pavilion 15",
                         MaDanhMuc = laptopVanPhong.MaDanhMuc,
                         MaThuongHieu = hp.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 18990000,
-                        MoTaNgan = "HP Pavilion 15 â€“ Laptop vÄƒn phÃ²ng Ä‘a nÄƒng, thiáº¿t káº¿ sang trá»ng",
-                        MoTa = "HP Pavilion 15 lÃ  laptop vÄƒn phÃ²ng Ä‘a nÄƒng vá»›i thiáº¿t káº¿ sang trá»ng, hiá»‡u nÄƒng á»•n Ä‘á»‹nh tá»« Intel Core i5, phÃ¹ há»£p cho cÃ´ng viá»‡c vÄƒn phÃ²ng, giáº£i trÃ­ vÃ  há»c táº­p.",
-                        ThongSoKyThuat = "CPU: Intel Core i5-1235U<br>RAM: 8GB DDR4<br>á»” cá»©ng: 512GB SSD<br>VGA: Intel Iris Xe Graphics<br>MÃ n hÃ¬nh: 15.6 inch FHD<br>Pin: 41Wh<br>Trá»ng lÆ°á»£ng: 1.75kg",
+                        MoTaNgan = "HP Pavilion 15 - Laptop văn phòng đa năng, thiết kế sang trọng",
+                        MoTa = "HP Pavilion 15 là laptop văn phòng đa năng với thiết kế sang trọng, hiệu năng ổn định từ Intel Core i5, phù hợp cho công việc văn phòng, giải trí và học tập.",
+                        ThongSoKyThuat = "CPU: Intel Core i5-1235U<br>RAM: 8GB DDR4<br>Ổ cứng: 512GB SSD<br>VGA: Intel Iris Xe Graphics<br>Màn hình: 15.6 inch FHD<br>Pin: 41Wh<br>Trọng lượng: 1.75kg",
                         SoLuong = 8,
                         TrangThai = 1,
                         LuotXem = 2000,
@@ -138,11 +184,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Dell XPS 15",
                         MaDanhMuc = laptopDoHoa.MaDanhMuc,
                         MaThuongHieu = dell.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 42990000,
-                        MoTaNgan = "Dell XPS 15 â€“ Laptop Ä‘á»“ há»a cao cáº¥p vá»›i mÃ n hÃ¬nh OLED 4K tuyá»‡t Ä‘áº¹p",
-                        MoTa = "Dell XPS 15 lÃ  laptop cao cáº¥p dÃ nh cho Ä‘á»“ há»a vÃ  sÃ¡ng táº¡o ná»™i dung vá»›i mÃ n hÃ¬nh OLED 4K, Intel Core i7 tháº¿ há»‡ 12, RTX 3050 Ti, thiáº¿t káº¿ kim loáº¡i nguyÃªn khá»‘i sang trá»ng.",
-                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>á»” cá»©ng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3050 Ti 4GB<br>MÃ n hÃ¬nh: 15.6 inch OLED 4K<br>Pin: 86Wh<br>Trá»ng lÆ°á»£ng: 1.96kg",
+                        MoTaNgan = "Dell XPS 15 - Laptop đồ họa cao cấp với màn hình OLED 4K tuyệt đẹp",
+                        MoTa = "Dell XPS 15 là laptop cao cấp dành cho đồ họa và sáng tạo nội dung với màn hình OLED 4K, Intel Core i7 thế hệ 12, RTX 3050 Ti, thiết kế kim loại nguyên khối sang trọng.",
+                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>Ổ cứng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3050 Ti 4GB<br>Màn hình: 15.6 inch OLED 4K<br>Pin: 86Wh<br>Trọng lượng: 1.96kg",
                         SoLuong = 11,
                         TrangThai = 2,
                         LuotXem = 500,
@@ -157,11 +202,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Lenovo ThinkPad X1 Carbon",
                         MaDanhMuc = laptopVanPhong.MaDanhMuc,
                         MaThuongHieu = lenovo.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 38990000,
-                        MoTaNgan = "Lenovo ThinkPad X1 Carbon â€“ Laptop doanh nhÃ¢n cao cáº¥p, siÃªu má»ng nháº¹",
-                        MoTa = "Lenovo ThinkPad X1 Carbon lÃ  laptop doanh nhÃ¢n cao cáº¥p vá»›i thiáº¿t káº¿ siÃªu má»ng nháº¹, Ä‘á»™ bá»n quÃ¢n Ä‘á»™i MIL-STD-810H, Intel Core i7 tháº¿ há»‡ 12, bÃ n phÃ­m ThinkPad huyá»n thoáº¡i.",
-                        ThongSoKyThuat = "CPU: Intel Core i7-1260P<br>RAM: 16GB LPDDR5<br>á»” cá»©ng: 512GB SSD NVMe<br>VGA: Intel Iris Xe Graphics<br>MÃ n hÃ¬nh: 14 inch 2.8K OLED<br>Pin: 57Wh<br>Trá»ng lÆ°á»£ng: 1.12kg",
+                        MoTaNgan = "Lenovo ThinkPad X1 Carbon - Laptop doanh nhân cao cấp, siêu mỏng nhẹ",
+                        MoTa = "Lenovo ThinkPad X1 Carbon là laptop doanh nhân cao cấp với thiết kế siêu mỏng nhẹ, độ bền quân đội MIL-STD-810H, Intel Core i7 thế hệ 12, bàn phím ThinkPad huyền thoại.",
+                        ThongSoKyThuat = "CPU: Intel Core i7-1260P<br>RAM: 16GB LPDDR5<br>Ổ cứng: 512GB SSD NVMe<br>VGA: Intel Iris Xe Graphics<br>Màn hình: 14 inch 2.8K OLED<br>Pin: 57Wh<br>Trọng lượng: 1.12kg",
                         SoLuong = 17,
                         TrangThai = 2,
                         LuotXem = 250,
@@ -176,11 +220,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "HP Envy 14",
                         MaDanhMuc = laptopDoHoa.MaDanhMuc,
                         MaThuongHieu = hp.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 35990000,
-                        MoTaNgan = "HP Envy 14 â€“ Laptop sÃ¡ng táº¡o ná»™i dung vá»›i mÃ n hÃ¬nh 2.8K OLED",
-                        MoTa = "HP Envy 14 lÃ  laptop cao cáº¥p dÃ nh cho sÃ¡ng táº¡o ná»™i dung vá»›i mÃ n hÃ¬nh OLED 2.8K, Intel Core i7 tháº¿ há»‡ 12, RTX 3050, thiáº¿t káº¿ kim loáº¡i sang trá»ng vÃ  hiá»‡u nÄƒng máº¡nh máº½.",
-                        ThongSoKyThuat = "CPU: Intel Core i7-1260P<br>RAM: 16GB DDR4<br>á»” cá»©ng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3050 4GB<br>MÃ n hÃ¬nh: 14 inch 2.8K OLED<br>Pin: 68Wh<br>Trá»ng lÆ°á»£ng: 1.49kg",
+                        MoTaNgan = "HP Envy 14 - Laptop sáng tạo nội dung với màn hình 2.8K OLED",
+                        MoTa = "HP Envy 14 là laptop cao cấp dành cho sáng tạo nội dung với màn hình OLED 2.8K, Intel Core i7 thế hệ 12, RTX 3050, thiết kế kim loại sang trọng và hiệu năng mạnh mẽ.",
+                        ThongSoKyThuat = "CPU: Intel Core i7-1260P<br>RAM: 16GB DDR4<br>Ổ cứng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3050 4GB<br>Màn hình: 14 inch 2.8K OLED<br>Pin: 68Wh<br>Trọng lượng: 1.49kg",
                         SoLuong = 20,
                         TrangThai = 2,
                         LuotXem = 5000,
@@ -195,11 +238,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Asus Vivobook 15",
                         MaDanhMuc = laptopVanPhong.MaDanhMuc,
                         MaThuongHieu = asus.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 13990000,
-                        MoTaNgan = "Asus Vivobook 15 â€“ Laptop vÄƒn phÃ²ng giÃ¡ tá»‘t, thiáº¿t káº¿ tráº» trung",
-                        MoTa = "Asus Vivobook 15 lÃ  laptop vÄƒn phÃ²ng vá»›i thiáº¿t káº¿ tráº» trung, nhiá»u mÃ u sáº¯c, hiá»‡u nÄƒng á»•n Ä‘á»‹nh tá»« Intel Core i3 tháº¿ há»‡ 12, phÃ¹ há»£p cho há»c sinh, sinh viÃªn vÃ  cÃ´ng viá»‡c vÄƒn phÃ²ng cÆ¡ báº£n.",
-                        ThongSoKyThuat = "CPU: Intel Core i3-1215U<br>RAM: 8GB DDR4<br>á»” cá»©ng: 256GB SSD<br>VGA: Intel UHD Graphics<br>MÃ n hÃ¬nh: 15.6 inch FHD<br>Pin: 42Wh<br>Trá»ng lÆ°á»£ng: 1.7kg",
+                        MoTaNgan = "Asus Vivobook 15 - Laptop văn phòng giá tốt, thiết kế trẻ trung",
+                        MoTa = "Asus Vivobook 15 là laptop văn phòng với thiết kế trẻ trung, nhiều màu sắc, hiệu năng ổn định từ Intel Core i3 thế hệ 12, phù hợp cho học sinh, sinh viên và công việc văn phòng cơ bản.",
+                        ThongSoKyThuat = "CPU: Intel Core i3-1215U<br>RAM: 8GB DDR4<br>Ổ cứng: 256GB SSD<br>VGA: Intel UHD Graphics<br>Màn hình: 15.6 inch FHD<br>Pin: 42Wh<br>Trọng lượng: 1.7kg",
                         SoLuong = 9,
                         TrangThai = 3,
                         LuotXem = 4000,
@@ -214,11 +256,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Dell G15 Gaming",
                         MaDanhMuc = laptopGaming.MaDanhMuc,
                         MaThuongHieu = dell.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 28990000,
-                        MoTaNgan = "Dell G15 Gaming â€“ Laptop gaming giÃ¡ tá»‘t vá»›i hiá»‡u nÄƒng máº¡nh máº½",
-                        MoTa = "Dell G15 Gaming lÃ  laptop gaming vá»›i thiáº¿t káº¿ máº¡nh máº½, trang bá»‹ Intel Core i7 tháº¿ há»‡ 12, RTX 3060, mÃ n hÃ¬nh 165Hz, há»‡ thá»‘ng táº£n nhiá»‡t hiá»‡u quáº£ cho tráº£i nghiá»‡m gaming tuyá»‡t vá»i.",
-                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>á»” cá»©ng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3060 6GB<br>MÃ n hÃ¬nh: 15.6 inch FHD 165Hz<br>Pin: 56Wh<br>Trá»ng lÆ°á»£ng: 2.65kg",
+                        MoTaNgan = "Dell G15 Gaming - Laptop gaming giá tốt với hiệu năng mạnh mẽ",
+                        MoTa = "Dell G15 Gaming là laptop gaming với thiết kế mạnh mẽ, trang bị Intel Core i7 thế hệ 12, RTX 3060, màn hình 165Hz, hệ thống tản nhiệt hiệu quả cho trải nghiệm gaming tuyệt vời.",
+                        ThongSoKyThuat = "CPU: Intel Core i7-12700H<br>RAM: 16GB DDR5<br>Ổ cứng: 512GB SSD NVMe<br>VGA: NVIDIA RTX 3060 6GB<br>Màn hình: 15.6 inch FHD 165Hz<br>Pin: 56Wh<br>Trọng lượng: 2.65kg",
                         SoLuong = 22,
                         TrangThai = 3,
                         LuotXem = 150,
@@ -233,22 +274,10 @@ namespace Ecommerce_WatchShop
                         TenSanPham = "Asus Zenbook 14 OLED",
                         MaDanhMuc = laptopDoHoa.MaDanhMuc,
                         MaThuongHieu = asus.MaThuongHieu,
-                        GioiTinh = "Unisex",
                         Gia = 29990000,
-                        MoTaNgan = "Asus Zenbook 14 OLED â€“ Laptop cao cáº¥p vá»›i mÃ n hÃ¬nh OLED tuyá»‡t Ä‘áº¹p",
-                        MoTa = "Asus Zenbook 14 OLED lÃ  laptop cao cáº¥p vá»›i thiáº¿t káº¿ má»ng nháº¹, mÃ n hÃ¬nh OLED 2.8K sá»‘ng Ä‘á»™ng, Intel Core i5 tháº¿ há»‡ 12, phÃ¹ há»£p cho cÃ´ng viá»‡c sÃ¡ng táº¡o vÃ  di Ä‘á»™ng.",
-                        ThongSoKyThuat = @"
-                            <p><strong>ThÆ°Æ¡ng Hiá»‡u:</strong> Asus</p>
-                            <p><strong>DÃ²ng Sáº£n Pháº©m:</strong> Zenbook 14 OLED</p>
-                            <p><strong>CPU:</strong> Intel Core i5-1240P</p>
-                            <p><strong>RAM:</strong> 8GB LPDDR5</p>
-                            <p><strong>á»” cá»©ng:</strong> 512GB SSD NVMe</p>
-                            <p><strong>VGA:</strong> Intel Iris Xe Graphics</p>
-                            <p><strong>MÃ n hÃ¬nh:</strong> 14 inch 2.8K OLED</p>
-                            <p><strong>Pin:</strong> 75Wh</p>
-                            <p><strong>Trá»ng lÆ°á»£ng:</strong> 1.39kg</p>
-                            <p><strong>Báº£o HÃ nh:</strong> 24 thÃ¡ng</p>
-                        ",
+                        MoTaNgan = "Asus Zenbook 14 OLED - Laptop cao cấp với màn hình OLED tuyệt đẹp",
+                        MoTa = "Asus Zenbook 14 OLED là laptop cao cấp với thiết kế mỏng nhẹ, màn hình OLED 2.8K sống động, Intel Core i5 thế hệ 12, phù hợp cho công việc sáng tạo và di động.",
+                        ThongSoKyThuat = "CPU: Intel Core i5-1240P<br>RAM: 8GB LPDDR5<br>Ổ cứng: 512GB SSD NVMe<br>VGA: Intel Iris Xe Graphics<br>Màn hình: 14 inch 2.8K OLED<br>Pin: 75Wh<br>Trọng lượng: 1.39kg",
                         SoLuong = 10,
                         TrangThai = 3,
                         LuotXem = 999,
@@ -256,36 +285,35 @@ namespace Ecommerce_WatchShop
                         NgayCapNhat = null,
                         DaXoa = 0,
                         Slug = "asus-zenbook-14-oled"
-
                     }
                 );
                 await _context.SaveChangesAsync();
 
                 await _context.HinhAnhSanPhams.AddRangeAsync(
-                    new HinhAnhSanPham { MaSanPham = 1, HinhAnh = "Curnon_Kashmir_Silver___Abyss-removebg-preview.jpg" },
-                    new HinhAnhSanPham { MaSanPham = 1, HinhAnh = "Curnon Kashmir.png" },
-                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Citizen-BI5104-57E-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Citizen-BI5104-57E-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Citizen-Box1-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 3, HinhAnh = "Citizen-Tsuyosa-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 3, HinhAnh = "Citizen-Tsuyosa-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 4, HinhAnh = "Citizen-NH9130-84L-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 4, HinhAnh = "Citizen-NH9130-84L-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Citizen-Eco-Drive-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Citizen-Eco-Drive-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Citizen-Eco-Drive-4.png" },
-                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Citizen-EM0863-53D-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Citizen-EM0863-53D-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Citizen-EM0863-53D-4.png" },
-                    new HinhAnhSanPham { MaSanPham = 7, HinhAnh = "Doxa-Executive-Slim-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 7, HinhAnh = "Doxa-Executive-Slim-3.png" },
-                    new HinhAnhSanPham { MaSanPham = 8, HinhAnh = "Doxa-x-Dorian-Ho-Earlymoon.png" },
-                    new HinhAnhSanPham { MaSanPham = 8, HinhAnh = "Doxa-x-Dorian-Ho-Earlymoon-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 9, HinhAnh = "Doxa-Noble.png" },
-                    new HinhAnhSanPham { MaSanPham = 9, HinhAnh = "Doxa-Box-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Hop-Seiko.png" },
-                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Seiko-SSC943P1-2.png" },
-                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Seiko-SSC943P1-3.png" }
+                    new HinhAnhSanPham { MaSanPham = 1, HinhAnh = "Lenovo-Legion-5-2.jpg" },
+                    new HinhAnhSanPham { MaSanPham = 1, HinhAnh = "Lenovo-Legion-5-3.jpg" },
+                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Dell-Inspiron-15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Dell-Inspiron-15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 2, HinhAnh = "Dell-Box.png" },
+                    new HinhAnhSanPham { MaSanPham = 3, HinhAnh = "Asus-ROG-Strix-G15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 3, HinhAnh = "Asus-ROG-Strix-G15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 4, HinhAnh = "HP-Pavilion-15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 4, HinhAnh = "HP-Pavilion-15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Dell-XPS-15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Dell-XPS-15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 5, HinhAnh = "Dell-XPS-15-4.png" },
+                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Lenovo-ThinkPad-X1-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Lenovo-ThinkPad-X1-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 6, HinhAnh = "Lenovo-ThinkPad-X1-4.png" },
+                    new HinhAnhSanPham { MaSanPham = 7, HinhAnh = "HP-Envy-14-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 7, HinhAnh = "HP-Envy-14-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 8, HinhAnh = "Asus-Vivobook-15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 8, HinhAnh = "Asus-Vivobook-15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 9, HinhAnh = "Dell-G15-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 9, HinhAnh = "Dell-G15-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Asus-Zenbook-14-2.png" },
+                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Asus-Zenbook-14-3.png" },
+                    new HinhAnhSanPham { MaSanPham = 10, HinhAnh = "Asus-Zenbook-14-4.png" }
                 );
                 await _context.SaveChangesAsync();
             }
@@ -295,38 +323,38 @@ namespace Ecommerce_WatchShop
                 new BaiViet
                 {
                     HinhAnh = "Blog_1.jpg",
-                    TieuDe = "HÆ°á»›ng Dáº«n Chá»n Laptop PhÃ¹ Há»£p Vá»›i Nhu Cáº§u",
-                    NoiDung = "KhÃ¡m phÃ¡ cÃ¡ch chá»n laptop phÃ¹ há»£p vá»›i nhu cáº§u sá»­ dá»¥ng cá»§a báº¡n, tá»« gaming, vÄƒn phÃ²ng Ä‘áº¿n Ä‘á»“ há»a chuyÃªn nghiá»‡p."
+                    TieuDe = "Hướng Dẫn Chọn Laptop Phù Hợp Với Nhu Cầu",
+                    NoiDung = "Khám phá cách chọn laptop phù hợp với nhu cầu sử dụng của bạn, từ gaming, văn phòng đến đồ họa chuyên nghiệp."
                 },
                 new BaiViet
                 {
                     HinhAnh = "Blog_Meo.jpg",
-                    TieuDe = "Máº¹o Báº£o Quáº£n VÃ  Vá»‡ Sinh Laptop",
-                    NoiDung = "Há»c cÃ¡ch báº£o quáº£n vÃ  vá»‡ sinh laptop Ä‘Ãºng cÃ¡ch Ä‘á»ƒ mÃ¡y luÃ´n hoáº¡t Ä‘á»™ng tá»‘t vÃ  bá»n lÃ¢u theo thá»i gian."
+                    TieuDe = "Mẹo Bảo Quản Và Vệ Sinh Laptop",
+                    NoiDung = "Học cách bảo quản và vệ sinh laptop đúng cách để máy luôn hoạt động tốt và bền lâu theo thời gian."
                 },
                 new BaiViet
                 {
                     HinhAnh = "Blog_YN.jpg",
-                    TieuDe = "Táº§m Quan Trá»ng Cá»§a Laptop Trong Cuá»™c Sá»‘ng Hiá»‡n Äáº¡i",
-                    NoiDung = "Laptop Ä‘Ã£ trá»Ÿ thÃ nh cÃ´ng cá»¥ khÃ´ng thá»ƒ thiáº¿u trong cuá»™c sá»‘ng hiá»‡n Ä‘áº¡i, phá»¥c vá»¥ cho cÃ´ng viá»‡c, há»c táº­p vÃ  giáº£i trÃ­."
+                    TieuDe = "Tầm Quan Trọng Của Laptop Trong Cuộc Sống Hiện Đại",
+                    NoiDung = "Laptop đã trở thành công cụ không thể thiếu trong cuộc sống hiện đại, phục vụ cho công việc, học tập và giải trí."
                 },
                 new BaiViet
                 {
                     HinhAnh = "Blog_PC.jpg",
-                    TieuDe = "Chá»n Laptop Gaming Hay Laptop VÄƒn PhÃ²ng?",
-                    NoiDung = "Báº¡n Ä‘ang phÃ¢n vÃ¢n giá»¯a laptop gaming vÃ  laptop vÄƒn phÃ²ng? HÃ£y tham kháº£o bÃ i viáº¿t nÃ y Ä‘á»ƒ Ä‘Æ°a ra quyáº¿t Ä‘á»‹nh Ä‘Ãºng Ä‘áº¯n."
+                    TieuDe = "Chọn Laptop Gaming Hay Laptop Văn Phòng?",
+                    NoiDung = "Bạn đang phân vân giữa laptop gaming và laptop văn phòng? Hãy tham khảo bài viết này để đưa ra quyết định đúng đắn."
                 },
                 new BaiViet
                 {
                     HinhAnh = "Blog_Hublot.jpg",
-                    TieuDe = "So SÃ¡nh CÃ¡c ThÆ°Æ¡ng Hiá»‡u Laptop HÃ ng Äáº§u",
-                    NoiDung = "TÃ¬m hiá»ƒu vá» cÃ¡c thÆ°Æ¡ng hiá»‡u laptop hÃ ng Ä‘áº§u nhÆ° Dell, HP, Lenovo, Asus vÃ  Ä‘iá»ƒm máº¡nh cá»§a tá»«ng thÆ°Æ¡ng hiá»‡u."
+                    TieuDe = "So Sánh Các Thương Hiệu Laptop Hàng Đầu",
+                    NoiDung = "Tìm hiểu về các thương hiệu laptop hàng đầu như Dell, HP, Lenovo, Asus và điểm mạnh của từng thương hiệu."
                 },
                 new BaiViet
                 {
                     HinhAnh = "Blog_Co.jpg",
-                    TieuDe = "Top 10 Laptop ÄÃ¡ng Mua Nháº¥t NÄƒm 2025",
-                    NoiDung = "KhÃ¡m phÃ¡ danh sÃ¡ch top 10 máº«u laptop Ä‘Ã¡ng mua nháº¥t trong nÄƒm 2025 vá»›i hiá»‡u nÄƒng vÆ°á»£t trá»™i vÃ  giÃ¡ cáº£ há»£p lÃ½."
+                    TieuDe = "Top 10 Laptop Đáng Mua Nhất Năm 2025",
+                    NoiDung = "Khám phá danh sách top 10 mẫu laptop đáng mua nhất trong năm 2025 với hiệu năng vượt trội và giá cả hợp lý."
                 }
                 );
                 await _context.SaveChangesAsync();
@@ -335,18 +363,18 @@ namespace Ecommerce_WatchShop
             {
                 await _context.HinhAnhBaiViets.AddRangeAsync
                 (
-                new  HinhAnhBaiViet { MaBaiViet = 1, NoiDung = "HÃ¬nh áº£nh chi tiáº¿t vá» cÃ¡c loáº¡i laptop", HinhAnh = "Blog_1_detail.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 1, NoiDung = "HÃ¬nh áº£nh so sÃ¡nh cáº¥u hÃ¬nh laptop", HinhAnh = "Blog_1_mechanism.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 2, NoiDung = "HÃ¬nh áº£nh cÃ¡c dá»¥ng cá»¥ vá»‡ sinh laptop", HinhAnh = "Blog_Meo_tools.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 2, NoiDung = "HÃ¬nh áº£nh quy trÃ¬nh báº£o quáº£n laptop", HinhAnh = "Blog_Meo_process.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 3, NoiDung = "HÃ¬nh áº£nh laptop trong cÃ´ng viá»‡c", HinhAnh = "Blog_YN_watch.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 3, NoiDung = "HÃ¬nh áº£nh lá»‹ch sá»­ phÃ¡t triá»ƒn laptop", HinhAnh = "Blog_YN_history.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 4, NoiDung = "HÃ¬nh áº£nh cÃ¡c máº«u laptop gaming", HinhAnh = "Blog_PC_style.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 4, NoiDung = "HÃ¬nh áº£nh laptop vÄƒn phÃ²ng", HinhAnh = "Blog_PC_special.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 5, NoiDung = "HÃ¬nh áº£nh cÃ¡c thÆ°Æ¡ng hiá»‡u laptop", HinhAnh = "Blog_Hublot_types.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 5, NoiDung = "HÃ¬nh áº£nh chi tiáº¿t cáº¥u hÃ¬nh laptop", HinhAnh = "Blog_Hublot_parts.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 6, NoiDung = "HÃ¬nh áº£nh cÃ¡c máº«u laptop cao cáº¥p", HinhAnh = "Blog_Co_men_watch.jpg" },
-                new HinhAnhBaiViet { MaBaiViet = 6, NoiDung = "HÃ¬nh áº£nh laptop ná»•i báº­t nÄƒm 2025", HinhAnh = "Blog_Co_2025.jpg" }
+                new  HinhAnhBaiViet { MaBaiViet = 1, NoiDung = "Hình ảnh chi tiết về các loại laptop", HinhAnh = "Blog_1_detail.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 1, NoiDung = "Hình ảnh so sánh cấu hình laptop", HinhAnh = "Blog_1_mechanism.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 2, NoiDung = "Hình ảnh các dụng cụ vệ sinh laptop", HinhAnh = "Blog_Meo_tools.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 2, NoiDung = "Hình ảnh quy trình bảo quản laptop", HinhAnh = "Blog_Meo_process.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 3, NoiDung = "Hình ảnh laptop trong công việc", HinhAnh = "Blog_YN_watch.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 3, NoiDung = "Hình ảnh lịch sử phát triển laptop", HinhAnh = "Blog_YN_history.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 4, NoiDung = "Hình ảnh các mẫu laptop gaming", HinhAnh = "Blog_PC_style.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 4, NoiDung = "Hình ảnh laptop văn phòng", HinhAnh = "Blog_PC_special.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 5, NoiDung = "Hình ảnh các thương hiệu laptop", HinhAnh = "Blog_Hublot_types.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 5, NoiDung = "Hình ảnh chi tiết cấu hình laptop", HinhAnh = "Blog_Hublot_parts.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 6, NoiDung = "Hình ảnh các mẫu laptop cao cấp", HinhAnh = "Blog_Co_men_watch.jpg" },
+                new HinhAnhBaiViet { MaBaiViet = 6, NoiDung = "Hình ảnh laptop nổi bật năm 2025", HinhAnh = "Blog_Co_2025.jpg" }
                 );
                 await _context.SaveChangesAsync();
             }
@@ -357,8 +385,8 @@ namespace Ecommerce_WatchShop
                     new Footer
                     {
                         Logo = "Logo.png",
-                        MoTa = "ZZZ khÃ´ng chá»‰ lÃ  nÆ¡i Ä‘á»ƒ mua sáº¯m, mÃ  cÃ²n lÃ  má»™t nÆ¡i Ä‘á»ƒ khÃ¡m phÃ¡, tÃ¬m hiá»ƒu vÃ  Ä‘áº¯m mÃ¬nh trong tháº¿ giá»›i laptop cÃ´ng nghá»‡.",
-                        DiaChi = "65 Ä. Huá»³nh ThÃºc KhÃ¡ng, Báº¿n NghÃ©, Quáº­n 1, Há»“ ChÃ­ Minh",
+                        MoTa = "ZZZ không chỉ là nơi để mua sắm, mà còn là một nơi để khám phá, tìm hiểu và đắm mình trong thế giới laptop công nghệ.",
+                        DiaChi = "65 Đ. Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Hồ Chí Minh",
                         Email = "contact@zzz.com",
                         SoDienThoai = "0123456789",
                         FacebookUrl = "https://www.facebook.com/ZZZLAPTOPS/",
@@ -370,16 +398,14 @@ namespace Ecommerce_WatchShop
             if (!_context.FooterLinks.Any())
             {
                 await _context.FooterLinks.AddRangeAsync(
-                    new FooterLink { TieuDe = "Giá»›i Thiá»‡u", Url = "/Home/Introduction", MaNhom = 1, ThuTuHienThi = 1, TrangThai = true },
-                    new FooterLink { TieuDe = "LiÃªn Há»‡", Url = "/Home/Contact", MaNhom = 1, ThuTuHienThi = 2, TrangThai = true },
-                    // NhÃ³m TÃ i Khoáº£n (MaNhom = 2)
-                    new FooterLink { TieuDe = "TÃ i Khoáº£n Cá»§a TÃ´i", Url = "/Account/Index", MaNhom = 2, ThuTuHienThi = 1, TrangThai = true },
-                    new FooterLink { TieuDe = "YÃªu ThÃ­ch", Url = "/Account/Favorite", MaNhom = 2, ThuTuHienThi = 2, TrangThai = true },
-                    new FooterLink { TieuDe = "Lá»‹ch Sá»­ ÄÆ¡n HÃ ng", Url = "/Account/Order", MaNhom = 2, ThuTuHienThi = 3, TrangThai = true },
-                    // NhÃ³m Danh Má»¥c (MaNhom = 3)
+                    new FooterLink { TieuDe = "Giới Thiệu", Url = "/Home/Introduction", MaNhom = 1, ThuTuHienThi = 1, TrangThai = true },
+                    new FooterLink { TieuDe = "Liên Hệ", Url = "/Home/Contact", MaNhom = 1, ThuTuHienThi = 2, TrangThai = true },
+                    new FooterLink { TieuDe = "Tài Khoản Của Tôi", Url = "/Account/Index", MaNhom = 2, ThuTuHienThi = 1, TrangThai = true },
+                    new FooterLink { TieuDe = "Yêu Thích", Url = "/Account/Favorite", MaNhom = 2, ThuTuHienThi = 2, TrangThai = true },
+                    new FooterLink { TieuDe = "Lịch Sử Đơn Hàng", Url = "/Account/Order", MaNhom = 2, ThuTuHienThi = 3, TrangThai = true },
                     new FooterLink { TieuDe = "Laptop Gaming", Url = "/laptop-gaming", MaNhom = 3, ThuTuHienThi = 1, TrangThai = true },
-                    new FooterLink { TieuDe = "Laptop VÄƒn PhÃ²ng", Url = "/laptop-van-phong", MaNhom = 3, ThuTuHienThi = 2, TrangThai = true },
-                    new FooterLink { TieuDe = "Laptop Äá»“ Há»a", Url = "/laptop-do-hoa", MaNhom = 3, ThuTuHienThi = 3, TrangThai = true },
+                    new FooterLink { TieuDe = "Laptop Văn Phòng", Url = "/laptop-van-phong", MaNhom = 3, ThuTuHienThi = 2, TrangThai = true },
+                    new FooterLink { TieuDe = "Laptop Đồ Họa", Url = "/laptop-do-hoa", MaNhom = 3, ThuTuHienThi = 3, TrangThai = true },
                     new FooterLink { TieuDe = "Laptop Dell", Url = "/dell", MaNhom = 3, ThuTuHienThi = 4, TrangThai = true },
                     new FooterLink { TieuDe = "Laptop Asus", Url = "/asus", MaNhom = 3, ThuTuHienThi = 5, TrangThai = true }
                 );
@@ -390,9 +416,9 @@ namespace Ecommerce_WatchShop
             {
                 await _context.Sliders.AddRangeAsync
                 (
-                    new Slider { TieuDe = "Laptop Dell Inspiron", MoTa = "Sáº£n Pháº©m Ná»•i Báº­t", HinhAnh = "/HinhAnhs/laptop-banner-1.jpg", Link = "/Product/ProductDetail/2", ThuTuHienThi = 1, TrangThai = true },
-                    new Slider { TieuDe = "Laptop Gaming", MoTa = "Giáº£m giÃ¡ Ä‘áº¿n 15%", HinhAnh = "/HinhAnhs/laptop-banner-2.jpg", Link = "/Product/ProductDetail/1", ThuTuHienThi = 2, TrangThai = true },
-                    new Slider { TieuDe = "Laptop Cao Cáº¥p", MoTa = "Biá»ƒu tÆ°á»£ng cá»§a cÃ´ng nghá»‡ vÃ  hiá»‡u nÄƒng", HinhAnh = "/HinhAnhs/laptop-banner-3.jpg", Link = "/Product/ProductDetail/5", ThuTuHienThi = 3, TrangThai = true }
+                    new Slider { TieuDe = "Laptop Dell Inspiron", MoTa = "Sản Phẩm Nổi Bật", HinhAnh = "/Images/ricky-kharawala-Yka2yhGJwjc-unsplash 1.png", Link = "/Product/ProductDetail/2", ThuTuHienThi = 1, TrangThai = true },
+                    new Slider { TieuDe = "Laptop Gaming", MoTa = "Giảm giá đến 15%", HinhAnh = "/Images/Artboard-1.jpg", Link = "/Product/ProductDetail/1", ThuTuHienThi = 2, TrangThai = true },
+                    new Slider { TieuDe = "Laptop Cao Cấp", MoTa = "Biểu tượng của công nghệ và hiệu năng", HinhAnh = "/Images/default-large.jpg", Link = "/Product/ProductDetail/5", ThuTuHienThi = 3, TrangThai = true }
                 );
                 await _context.SaveChangesAsync();
             }
@@ -404,14 +430,14 @@ namespace Ecommerce_WatchShop
                     new GioiThieu
                     {
                         NoiDung = @"
-                        ZZZ LAPTOP khÃ´ng chá»‰ lÃ  nÆ¡i Ä‘á»ƒ mua sáº¯m, mÃ  cÃ²n lÃ  má»™t nÆ¡i Ä‘á»ƒ khÃ¡m phÃ¡, tÃ¬m hiá»ƒu vÃ  Ä‘áº¯m mÃ¬nh trong tháº¿ giá»›i Ä‘á»“ng há»“.
+                        ZZZ LAPTOP không chỉ là nơi để mua sắm, mà còn là một nơi để khám phá, tìm hiểu và đắm mình trong thế giới công nghệ laptop.
                         <br />
-                        ZZZ LAPTOP Ä‘Æ°á»£c xÃ¢y dá»±ng nháº±m cung cáº¥p cho khÃ¡ch hÃ ng nhá»¯ng sáº£n pháº©m Ä‘á»“ng há»“ Ä‘eo tay cao cáº¥p, cháº¥t lÆ°á»£ng, 
-                        chÃ­nh hÃ£ng cam káº¿t mang Ä‘áº¿n cho khÃ¡ch hÃ ng nhá»¯ng máº«u Ä‘á»“ng há»“ hoÃ n háº£o vá» cáº£ thiáº¿t káº¿ láº«n tÃ­nh nÄƒng 
-                        vÃ  hoÃ n thÃ nh sá»© má»‡nh â€œNÆ¡i An TÃ¢m Mua Äá»“ng Há»“ ChÃ­nh HÃ£ngâ€. Äá»“ng thá»i chÃºng tÃ´i cÅ©ng hÆ°á»›ng Ä‘áº¿n  nhá»¯ng tráº£i nghiá»‡m dá»… dÃ ng, 
-                        an toÃ n vÃ  nhanh chÃ³ng khi mua sáº¯m trá»±c tuyáº¿n thÃ´ng qua há»‡ thá»‘ng há»— trá»£ thanh toÃ¡n vÃ  váº­n hÃ nh vá»¯ng máº¡nh.
+                        ZZZ LAPTOP được xây dựng nhằm cung cấp cho khách hàng những sản phẩm laptop cao cấp, chất lượng, 
+                        chính hãng cam kết mang đến cho khách hàng những mẫu laptop hoàn hảo về cả thiết kế lẫn hiệu năng 
+                        và hoàn thành sứ mệnh ""Nơi An Tâm Mua Laptop Chính Hãng"". Đồng thời chúng tôi cũng hướng đến những trải nghiệm dễ dàng, 
+                        an toàn và nhanh chóng khi mua sắm trực tuyến thông qua hệ thống hỗ trợ thanh toán và vận hành vững mạnh.
                         ",
-                        DiaChi = "65 Ä. Huá»³nh ThÃºc KhÃ¡ng, Báº¿n NghÃ©, Quáº­n 1, Há»“ ChÃ­ Minh",
+                        DiaChi = "65 Đ. Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Hồ Chí Minh",
                         SoDienThoai = "0306221377",
                         Email = "0306221377@caothang.edu.vn"
                     }
@@ -424,118 +450,98 @@ namespace Ecommerce_WatchShop
                 (
                     new ChinhSach
                     {
-                        TieuDe = "Giao hÃ ng nhanh",
-                        NoiDung = @"ChÃºng tÃ´i cam káº¿t cung cáº¥p dá»‹ch vá»¥ giao hÃ ng nhanh chÃ³ng vÃ  Ä‘Ã¡ng tin cáº­y. ÄÆ¡n hÃ ng cá»§a báº¡n sáº½ Ä‘Æ°á»£c xá»­ lÃ½ vÃ  giao trong vÃ²ng 1-2 ngÃ y lÃ m viá»‡c, tÃ¹y thuá»™c vÃ o Ä‘á»‹a chá»‰ giao hÃ ng. 
-                                Äáº·c biá»‡t, Ä‘á»‘i vá»›i cÃ¡c Ä‘Æ¡n hÃ ng trong khu vá»±c ná»™i thÃ nh, chÃºng tÃ´i sáº½ giao trong ngÃ y náº¿u Ä‘Æ¡n hÃ ng Ä‘Æ°á»£c Ä‘áº·t trÆ°á»›c 12h00. 
-                                Má»i chi phÃ­ giao hÃ ng sáº½ Ä‘Æ°á»£c hiá»ƒn thá»‹ rÃµ rÃ ng khi báº¡n thanh toÃ¡n, vÃ  miá»…n phÃ­ váº­n chuyá»ƒn cho Ä‘Æ¡n hÃ ng cÃ³ giÃ¡ trá»‹ tá»« [sá»‘ tiá»n cá»¥ thá»ƒ] trá»Ÿ lÃªn. 
-                                ChÃºng tÃ´i luÃ´n ná»— lá»±c mang Ä‘áº¿n tráº£i nghiá»‡m giao hÃ ng nhanh chÃ³ng, tiá»‡n lá»£i vÃ  khÃ´ng gÃ¢y phiá»n phá»©c cho khÃ¡ch hÃ ng."
+                        TieuDe = "Giao hàng nhanh",
+                        NoiDung = @"Chúng tôi cam kết cung cấp dịch vụ giao hàng nhanh chóng và đáng tin cậy. Đơn hàng của bạn sẽ được xử lý và giao trong vòng 1-2 ngày làm việc, tùy thuộc vào địa chỉ giao hàng. 
+                                Đặc biệt, đối với các đơn hàng trong khu vực nội thành, chúng tôi sẽ giao trong ngày nếu đơn hàng được đặt trước 12h00. 
+                                Mọi chi phí giao hàng sẽ được hiển thị rõ ràng khi bạn thanh toán, và miễn phí vận chuyển cho đơn hàng có giá trị từ 15 triệu đồng trở lên. 
+                                Chúng tôi luôn nỗ lực mang đến trải nghiệm giao hàng nhanh chóng, tiện lợi và không gây phiền phức cho khách hàng."
                     },
                     new ChinhSach
                     {
-                        TieuDe = "Miá»…n phÃ­ giao hÃ ng",
-                        NoiDung = @"Cá»­a hÃ ng sáº½ miá»…n phÃ­ giao hÃ ng cho táº¥t cáº£ cÃ¡c Ä‘Æ¡n hÃ ng trong pháº¡m vi ná»™i thÃ nh.
-                                Äá»‘i vá»›i cÃ¡c Ä‘Æ¡n hÃ ng á»Ÿ pháº¡m vi ngoÃ i thÃ nh phá»‘ thÃ¬ sáº½ Ä‘Æ°á»£c tÃ­nh phÃ­ váº­n chuyá»ƒn.
-                                Thá»i gian nháº­n hÃ ng sáº½ tá»« 1-5 ngÃ y tÃ¹y vÃ o Ä‘á»‹a Ä‘iá»ƒm nháº­n hÃ ng.
-                                Cá»­a hÃ ng sáº½ lá»±a chá»n Ä‘á»‘i tÃ¡c váº­n chuyá»ƒn uy tÃ­n Ä‘á»ƒ Ä‘áº£m báº£o laptop Ä‘Æ°á»£c giao Ä‘áº¿n khÃ¡ch hÃ ng má»™t cÃ¡ch an toÃ n vÃ  Ä‘Ãºng thá»i gian.
-                                Trong quÃ¡ trÃ¬nh váº­n chuyá»ƒn, náº¿u sáº£n pháº©m bá»‹ hÆ° há»ng hoáº·c tháº¥t láº¡c, cá»­a hÃ ng sáº½ chá»‹u trÃ¡ch nhiá»‡m hoÃ n toÃ n vÃ  cÃ³ thá»ƒ gá»­i láº¡i sáº£n pháº©m má»›i hoáº·c hoÃ n tiá»n cho khÃ¡ch hÃ ng.
-                                ChÃ­nh sÃ¡ch miá»…n phÃ­ giao hÃ ng cÃ³ thá»ƒ khÃ´ng Ã¡p dá»¥ng cho cÃ¡c khu vá»±c vÃ¹ng sÃ¢u, vÃ¹ng xa hoáº·c quá»‘c táº¿, vÃ  trong trÆ°á»ng há»£p nÃ y, khÃ¡ch hÃ ng sáº½ Ä‘Æ°á»£c thÃ´ng bÃ¡o rÃµ rÃ ng vá» cÃ¡c chi phÃ­ phÃ¡t sinh."
+                        TieuDe = "Miễn phí giao hàng",
+                        NoiDung = @"Cửa hàng sẽ miễn phí giao hàng cho tất cả các đơn hàng trong phạm vi nội thành.
+                                Đối với các đơn hàng ở phạm vi ngoài thành phố thì sẽ được tính phí vận chuyển.
+                                Thời gian nhận hàng sẽ từ 1-5 ngày tùy vào địa điểm nhận hàng.
+                                Cửa hàng sẽ lựa chọn đối tác vận chuyển uy tín để đảm bảo laptop được giao đến khách hàng một cách an toàn và đúng thời gian.
+                                Trong quá trình vận chuyển, nếu sản phẩm bị hư hỏng hoặc thất lạc, cửa hàng sẽ chịu trách nhiệm hoàn toàn và có thể gửi lại sản phẩm mới hoặc hoàn tiền cho khách hàng.
+                                Chính sách miễn phí giao hàng có thể không áp dụng cho các khu vực vùng sâu, vùng xa hoặc quốc tế, và trong trường hợp này, khách hàng sẽ được thông báo rõ ràng về các chi phí phát sinh."
                     },
                     new ChinhSach
                     {
-                        TieuDe = "Cam káº¿t chÃ­nh hÃ£ng",
-                        NoiDung = @"Cá»­a hÃ ng cam káº¿t táº¥t cáº£ Ä‘á»“ng há»“ bÃ¡n ra Ä‘á»u lÃ  hÃ ng chÃ­nh hÃ£ng, Ä‘Æ°á»£c nháº­p kháº©u hoáº·c phÃ¢n phá»‘i trá»±c tiáº¿p tá»« nhÃ  sáº£n xuáº¥t hoáº·c Ä‘áº¡i lÃ½ á»§y quyá»n.
-                                Má»—i sáº£n pháº©m sáº½ Ä‘i kÃ¨m vá»›i cÃ¡c giáº¥y tá» chá»©ng nháº­n chÃ­nh hÃ£ng, bao gá»“m sá»• báº£o hÃ nh, hÃ³a Ä‘Æ¡n mua hÃ ng, vÃ  cÃ¡c giáº¥y tá» liÃªn quan khÃ¡c.
-                                Äá»“ng há»“ mua táº¡i cá»­a hÃ ng sáº½ Ä‘Æ°á»£c báº£o hÃ nh theo tiÃªu chuáº©n cá»§a nhÃ  sáº£n xuáº¥t. Thá»i gian báº£o hÃ nh vÃ  cÃ¡c dá»‹ch vá»¥ Ä‘i kÃ¨m sáº½ Ä‘Æ°á»£c thá»±c hiá»‡n táº¡i cÃ¡c trung tÃ¢m báº£o hÃ nh á»§y quyá»n.
-                                Náº¿u khÃ¡ch hÃ ng chá»©ng minh Ä‘Æ°á»£c sáº£n pháº©m lÃ  hÃ ng giáº£, cá»­a hÃ ng cam káº¿t hoÃ n tráº£ toÃ n bá»™ sá»‘ tiá»n Ä‘Ã£ thanh toÃ¡n vÃ  cÃ³ thá»ƒ bá»“i thÆ°á»ng thÃªm tÃ¹y theo chÃ­nh sÃ¡ch cá»¥ thá»ƒ.
-                                Cá»­a hÃ ng sáº½ cung cáº¥p dá»‹ch vá»¥ háº­u mÃ£i, bao gá»“m sá»­a chá»¯a vÃ  báº£o trÃ¬ Ä‘á»“ng há»“, vá»›i cam káº¿t sá»­ dá»¥ng linh kiá»‡n chÃ­nh hÃ£ng.
-                                Cá»­a hÃ ng cÃ³ thá»ƒ Ã¡p dá»¥ng chÃ­nh sÃ¡ch Ä‘á»•i tráº£ linh hoáº¡t náº¿u khÃ¡ch hÃ ng phÃ¡t hiá»‡n sáº£n pháº©m cÃ³ lá»—i sáº£n xuáº¥t hoáº·c khÃ´ng Ä‘Ãºng vá»›i mÃ´ táº£ ban Ä‘áº§u."
+                        TieuDe = "Cam kết chính hãng",
+                        NoiDung = @"Cửa hàng cam kết tất cả laptop bán ra đều là hàng chính hãng, được nhập khẩu hoặc phân phối trực tiếp từ nhà sản xuất hoặc đại lý ủy quyền.
+                                Mỗi sản phẩm sẽ đi kèm với các giấy tờ chứng nhận chính hãng, bao gồm sổ bảo hành, hóa đơn mua hàng, và các giấy tờ liên quan khác.
+                                Laptop mua tại cửa hàng sẽ được bảo hành theo tiêu chuẩn của nhà sản xuất. Thời gian bảo hành và các dịch vụ đi kèm sẽ được thực hiện tại các trung tâm bảo hành ủy quyền.
+                                Nếu khách hàng chứng minh được sản phẩm là hàng giả, cửa hàng cam kết hoàn trả toàn bộ số tiền đã thanh toán và có thể bồi thường thêm tùy theo chính sách cụ thể.
+                                Cửa hàng sẽ cung cấp dịch vụ hậu mãi, bao gồm sửa chữa và bảo trì laptop, với cam kết sử dụng linh kiện chính hãng.
+                                Khách hàng có thể yên tâm về chất lượng sản phẩm và dịch vụ hậu mãi khi mua hàng tại cửa hàng."
+                    },
+                    new ChinhSach
+                    {
+                        TieuDe = "Đổi trả trong 7 ngày",
+                        NoiDung = @"Khách hàng có thể đổi trả sản phẩm trong vòng 7 ngày kể từ ngày nhận hàng nếu sản phẩm có lỗi từ nhà sản xuất hoặc không đúng như mô tả.
+                                Sản phẩm đổi trả phải còn nguyên vẹn, chưa qua sử dụng, còn đầy đủ phụ kiện và hộp đựng.
+                                Cửa hàng sẽ kiểm tra sản phẩm và xác nhận lỗi trước khi tiến hành đổi trả.
+                                Trong trường hợp sản phẩm không thể đổi, cửa hàng sẽ hoàn tiền 100% cho khách hàng.
+                                Chi phí vận chuyển đổi trả sẽ do cửa hàng chịu nếu lỗi từ phía cửa hàng hoặc nhà sản xuất."
                     }
                 );
                 await _context.SaveChangesAsync();
             }
-            if (!_context.VaiTros.Any())
+
+            // Seed Thuộc tính sản phẩm
+            if (!_context.ThuocTinhSanPhams.Any())
             {
-                await _context.VaiTros.AddRangeAsync
-                (
-                    new VaiTro { Loai = "User" },
-                    new VaiTro { Loai = "Admin" }
+                var thuocTinhCPU = new ThuocTinhSanPham { TenThuocTinh = "CPU", Slug = "cpu", MoTa = "Bộ xử lý", ThuTuHienThi = 1, HienThi = true };
+                var thuocTinhRAM = new ThuocTinhSanPham { TenThuocTinh = "RAM", Slug = "ram", MoTa = "Bộ nhớ RAM", ThuTuHienThi = 2, HienThi = true };
+                var thuocTinhVGA = new ThuocTinhSanPham { TenThuocTinh = "VGA", Slug = "vga", MoTa = "Card đồ họa", ThuTuHienThi = 3, HienThi = true };
+                var thuocTinhOCung = new ThuocTinhSanPham { TenThuocTinh = "Ổ cứng", Slug = "o-cung", MoTa = "Dung lượng lưu trữ", ThuTuHienThi = 4, HienThi = true };
+                var thuocTinhManHinh = new ThuocTinhSanPham { TenThuocTinh = "Màn hình", Slug = "man-hinh", MoTa = "Kích thước màn hình", ThuTuHienThi = 5, HienThi = true };
+
+                await _context.ThuocTinhSanPhams.AddRangeAsync(thuocTinhCPU, thuocTinhRAM, thuocTinhVGA, thuocTinhOCung, thuocTinhManHinh);
+                await _context.SaveChangesAsync();
+
+                // Seed Giá trị thuộc tính
+                // CPU
+                await _context.GiaTriThuocTinhs.AddRangeAsync(
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhCPU.MaThuocTinh, GiaTri = "Intel Core i3", Slug = "intel-core-i3", ThuTuHienThi = 1 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhCPU.MaThuocTinh, GiaTri = "Intel Core i5", Slug = "intel-core-i5", ThuTuHienThi = 2 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhCPU.MaThuocTinh, GiaTri = "Intel Core i7", Slug = "intel-core-i7", ThuTuHienThi = 3 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhCPU.MaThuocTinh, GiaTri = "AMD Ryzen 5", Slug = "amd-ryzen-5", ThuTuHienThi = 4 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhCPU.MaThuocTinh, GiaTri = "AMD Ryzen 7", Slug = "amd-ryzen-7", ThuTuHienThi = 5 }
                 );
+
+                // RAM
+                await _context.GiaTriThuocTinhs.AddRangeAsync(
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhRAM.MaThuocTinh, GiaTri = "8GB", Slug = "8gb", ThuTuHienThi = 1 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhRAM.MaThuocTinh, GiaTri = "16GB", Slug = "16gb", ThuTuHienThi = 2 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhRAM.MaThuocTinh, GiaTri = "32GB", Slug = "32gb", ThuTuHienThi = 3 }
+                );
+
+                // VGA
+                await _context.GiaTriThuocTinhs.AddRangeAsync(
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhVGA.MaThuocTinh, GiaTri = "Intel UHD Graphics", Slug = "intel-uhd", ThuTuHienThi = 1 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhVGA.MaThuocTinh, GiaTri = "Intel Iris Xe", Slug = "intel-iris-xe", ThuTuHienThi = 2 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhVGA.MaThuocTinh, GiaTri = "NVIDIA RTX 3050", Slug = "rtx-3050", ThuTuHienThi = 3 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhVGA.MaThuocTinh, GiaTri = "NVIDIA RTX 3060", Slug = "rtx-3060", ThuTuHienThi = 4 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhVGA.MaThuocTinh, GiaTri = "NVIDIA RTX 3070 Ti", Slug = "rtx-3070-ti", ThuTuHienThi = 5 }
+                );
+
+                // Ổ cứng
+                await _context.GiaTriThuocTinhs.AddRangeAsync(
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhOCung.MaThuocTinh, GiaTri = "256GB SSD", Slug = "256gb-ssd", ThuTuHienThi = 1 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhOCung.MaThuocTinh, GiaTri = "512GB SSD", Slug = "512gb-ssd", ThuTuHienThi = 2 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhOCung.MaThuocTinh, GiaTri = "1TB SSD", Slug = "1tb-ssd", ThuTuHienThi = 3 }
+                );
+
+                // Màn hình
+                await _context.GiaTriThuocTinhs.AddRangeAsync(
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhManHinh.MaThuocTinh, GiaTri = "14 inch", Slug = "14-inch", ThuTuHienThi = 1 },
+                    new GiaTriThuocTinh { MaThuocTinh = thuocTinhManHinh.MaThuocTinh, GiaTri = "15.6 inch", Slug = "15-6-inch", ThuTuHienThi = 2 }
+                );
+
                 await _context.SaveChangesAsync();
             }
-            if (!_context.TaiKhoans.Any())
-            {
-                await _context.TaiKhoans.AddRangeAsync
-                (
-                    new TaiKhoan { TenDangNhap = "admin", MatKhau = "admin", MaVaiTro = 2, },
-                    new TaiKhoan { TenDangNhap = "user1", MatKhau = "user1", MaVaiTro = 1 },
-                    new TaiKhoan { TenDangNhap = "user2", MatKhau = "user2", MaVaiTro = 1, },
-                    new TaiKhoan { TenDangNhap = "user3", MatKhau = "user3", MaVaiTro = 1, },
-                    new TaiKhoan { TenDangNhap = "user4", MatKhau = "user4", MaVaiTro = 1 },
-                    new TaiKhoan { TenDangNhap = "user5", MatKhau = "user5", MaVaiTro = 1, },
-                    new TaiKhoan { TenDangNhap = "user6", MatKhau = "user6", MaVaiTro = 1 },
-                    new TaiKhoan { TenDangNhap = "user7", MatKhau = "user7", MaVaiTro = 1, },
-                    new TaiKhoan { TenDangNhap = "user8", MatKhau = "user8", MaVaiTro = 1 },
-                    new TaiKhoan { TenDangNhap = "user9", MatKhau = "user9", MaVaiTro = 1, },
-                    new TaiKhoan { TenDangNhap = "user10", MatKhau = "user10", MaVaiTro = 1 }
-                );
-                await _context.SaveChangesAsync();
-            }
-            if (!_context.KhachHangs.Any())
-            {
-                await _context.KhachHangs.AddRangeAsync
-                (
-                    new KhachHang { HoTen = "Nguyá»…n VÄƒn A", SoDienThoai = "0123456789", DiaChi = "123 ÄÆ°á»ng ABC, Quáº­n 1", Email = "vana@gmail.com", NgaySinh = DateOnly.ParseExact("1990-01-01", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 2, TenHienThi = "user1" },
-
-                    new KhachHang { HoTen = "Tráº§n Thá»‹ B", SoDienThoai = "0987654321", DiaChi = "456 ÄÆ°á»ng DEF, Quáº­n 2", Email = "btran@gmail.com", NgaySinh = DateOnly.ParseExact("1992-02-02", "yyyy-MM-dd"), GioiTinh = false, MaTaiKhoan = 3, TenHienThi = "user2" },
-
-                    new KhachHang { HoTen = "LÃª VÄƒn C", SoDienThoai = "0123456780", DiaChi = "789 ÄÆ°á»ng GHI, Quáº­n 3", Email = "cle@gmail.com", NgaySinh = DateOnly.ParseExact("1988-03-03", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 4, TenHienThi = "user3" },
-
-                    new KhachHang { HoTen = "Pháº¡m Thá»‹ D", SoDienThoai = "0987654310", DiaChi = "321 ÄÆ°á»ng JKL, Quáº­n 4", Email = "dpham@gmail.com", NgaySinh = DateOnly.ParseExact("1985-04-04", "yyyy-MM-dd"), GioiTinh = false, MaTaiKhoan = 5, TenHienThi = "user4" },
-
-                    new KhachHang { HoTen = "Nguyá»…n VÄƒn E", SoDienThoai = "0123456790", DiaChi = "654 ÄÆ°á»ng MNO, Quáº­n 5", Email = "evan@gmail.com", NgaySinh = DateOnly.ParseExact("1995-05-05", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 6, TenHienThi = "user5" },
-
-                    new KhachHang { HoTen = "Tráº§n Thá»‹ F", SoDienThoai = "0987654322", DiaChi = "987 ÄÆ°á»ng PQR, Quáº­n 6", Email = "ftran@gmail.com", NgaySinh = DateOnly.ParseExact("1990-06-06", "yyyy-MM-dd"), GioiTinh = false, MaTaiKhoan = 7, TenHienThi = "user6" },
-
-                    new KhachHang { HoTen = "LÃª VÄƒn G", SoDienThoai = "0123456781", DiaChi = "135 ÄÆ°á»ng STU, Quáº­n 7", Email = "gle@gmail.com", NgaySinh = DateOnly.ParseExact("1982-07-07", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 8, TenHienThi = "user7" },
-
-                    new KhachHang { HoTen = "Pháº¡m Thá»‹ H", SoDienThoai = "0987654311", DiaChi = "246 ÄÆ°á»ng VWX, Quáº­n 8", Email = "hpham@gmail.com", NgaySinh = DateOnly.ParseExact("2000-07-07", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 9, TenHienThi = "user8" },
-
-                    new KhachHang { HoTen = "Nguyá»…n VÄƒn I", SoDienThoai = "0123456791", DiaChi = "357 ÄÆ°á»ng YZ, Quáº­n 9", Email = "ivan@gmail.com", NgaySinh = DateOnly.ParseExact("2002-08-30", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 10, TenHienThi = "user9" },
-
-                    new KhachHang { HoTen = "Tráº§n Thá»‹ J", SoDienThoai = "0987654323", DiaChi = "468 ÄÆ°á»ng ABCD, Quáº­n 10", Email = "jtran@gmail.com", NgaySinh = DateOnly.ParseExact("1996-01-11", "yyyy-MM-dd"), GioiTinh = true, MaTaiKhoan = 11, TenHienThi = "user10" }
-                );
-                await _context.SaveChangesAsync();
-            }
-            if (!_context.HoaDons.Any())
-            {
-                await _context.HoaDons.AddRangeAsync
-                (
-                    new HoaDon { MaKhachHang = 1, NgayDatHang = new DateTime(2021, 5, 15), HoTen = "Nguyá»…n VÄƒn A", SoDienThoai = "0123456789", Email = "vana@gmail.com", DiaChi = "123 ÄÆ°á»ng ABC, Quáº­n 1", Tinh = "TPHCM", Huyen = "Quáº­n 1", Xa = "PhÆ°á»ng 1", PhuongThucThanhToan = "Momo", TongTien = 15118000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 2, NgayDatHang = new DateTime(2021, 6, 20), HoTen = "Tráº§n Thá»‹ B", SoDienThoai = "0987654321", Email = "btran@gmail.com", DiaChi = "456 ÄÆ°á»ng DEF, Quáº­n 2", Tinh = "TPHCM", Huyen = "Quáº­n 2", Xa = "PhÆ°á»ng 2", PhuongThucThanhToan = "COD", TongTien = 32655000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 3, NgayDatHang = new DateTime(2022, 1, 10), HoTen = "LÃª VÄƒn C", SoDienThoai = "0123456780", Email = "cle@gmail.com", DiaChi = "789 ÄÆ°á»ng GHI, Quáº­n 3", Tinh = "HÃ  Ná»™i", Huyen = "Quáº­n 3", Xa = "PhÆ°á»ng 3", PhuongThucThanhToan = "Momo", TongTien = 32955000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 4, NgayDatHang = new DateTime(2022, 3, 15), HoTen = "Pháº¡m Thá»‹ D", SoDienThoai = "0987654310", Email = "dpham@gmail.com", DiaChi = "321 ÄÆ°á»ng JKL, Quáº­n 4", Tinh = "ÄÃ  Náºµng", Huyen = "Quáº­n 4", Xa = "PhÆ°á»ng 4", PhuongThucThanhToan = "COD", TongTien = 27830000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 5, NgayDatHang = new DateTime(2023, 2, 25), HoTen = "Nguyá»…n VÄƒn E", SoDienThoai = "0123456790", Email = "evan@gmail.com", DiaChi = "654 ÄÆ°á»ng MNO, Quáº­n 5", Tinh = "Háº£i PhÃ²ng", Huyen = "Quáº­n 5", Xa = "PhÆ°á»ng 5", PhuongThucThanhToan = "Momo", TongTien = 75090000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 6, NgayDatHang = new DateTime(2023, 4, 30), HoTen = "Tráº§n Thá»‹ F", SoDienThoai = "0987654322", Email = "ftran@gmail.com", DiaChi = "987 ÄÆ°á»ng PQR, Quáº­n 6", Tinh = "TPHCM", Huyen = "Quáº­n 6", Xa = "PhÆ°á»ng 6", PhuongThucThanhToan = "COD", TongTien = 51758000, TrangThai = 2 },
-                            
-                    new HoaDon { MaKhachHang = 7, NgayDatHang = new DateTime(2024, 7, 5), HoTen = "LÃª VÄƒn G", SoDienThoai = "0123456781", Email = "gle@gmail.com", DiaChi = "135 ÄÆ°á»ng STU, Quáº­n 7", Tinh = "HÃ  Ná»™i", Huyen = "Quáº­n 7", Xa = "PhÆ°á»ng 7", PhuongThucThanhToan = "Momo", TongTien = 30255000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 8, NgayDatHang = new DateTime(2024, 9, 10), HoTen = "Pháº¡m Thá»‹ H", SoDienThoai = "0987654311", Email = "hpham@gmail.com", DiaChi = "246 ÄÆ°á»ng VWX, Quáº­n 8", Tinh = "ÄÃ  Náºµng", Huyen = "Quáº­n 8", Xa = "PhÆ°á»ng 8", PhuongThucThanhToan = "COD", TongTien = 7585000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 9, NgayDatHang = new DateTime(2025, 1, 15), HoTen = "Nguyá»…n VÄƒn I", SoDienThoai = "0123456791", Email = "ivan@gmail.com", DiaChi = "357 ÄÆ°á»ng YZ, Quáº­n 9", Tinh = "Háº£i PhÃ²ng", Huyen = "Quáº­n 9", Xa = "PhÆ°á»ng 9", PhuongThucThanhToan = "Momo", TongTien = 63425000, TrangThai = 2 },
-
-                    new HoaDon { MaKhachHang = 10, NgayDatHang = new DateTime(2025, 3, 20), HoTen = "Tráº§n Thá»‹ J", SoDienThoai = "0987654323", Email = "jtran@gmail.com", DiaChi = "468 ÄÆ°á»ng ABCD, Quáº­n 10", Tinh = "TPHCM", Huyen = "Quáº­n 10", Xa = "PhÆ°á»ng 10", PhuongThucThanhToan = "COD", TongTien = 11450000, TrangThai = 2 }
-
-                );
-                await _context.SaveChangesAsync();
-            }
-            
-            
         }
-
     }
 }

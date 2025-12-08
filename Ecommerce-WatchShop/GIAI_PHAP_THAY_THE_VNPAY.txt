@@ -1,0 +1,105 @@
+═══════════════════════════════════════════════════════════════
+     GIẢI PHÁP THAY THẾ KHI KHÔNG ĐĂNG KÝ ĐƯỢC VNPAY SANDBOX
+═══════════════════════════════════════════════════════════════
+
+❌ VẤN ĐỀ: Không đăng ký được VNPay Sandbox
+
+✅ GIẢI PHÁP: Dùng thông tin test có sẵn
+
+───────────────────────────────────────────────────────────────
+
+🎯 GIẢI PHÁP 1: DÙNG THÔNG TIN TEST DEMO (KHUYẾN NGHỊ)
+
+VNPay cung cấp thông tin test công khai để developer test:
+
+TMN Code:     DEMOMERCHANT
+Hash Secret:  RAOEXHYVSDDIIENYWSLDIIZTANXUXZFJ
+
+Cập nhật vào appsettings.json:
+
+{
+  "VnPay": {
+    "TmnCode": "DEMOMERCHANT",
+    "HashSecret": "RAOEXHYVSDDIIENYWSLDIIZTANXUXZFJ",
+    "BaseUrl": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+    "ReturnUrl": "http://localhost:5000/Checkout/PaymentCallback",
+    "Version": "2.1.0",
+    "Command": "pay",
+    "CurrCode": "VND",
+    "Locale": "vn"
+  }
+}
+
+Thẻ test:
+Số thẻ:        9704198526191432198
+Tên chủ thẻ:   NGUYEN VAN A
+Ngày phát hành: 07/15
+Mật khẩu OTP:  123456
+
+───────────────────────────────────────────────────────────────
+
+🎯 GIẢI PHÁP 2: LIÊN HỆ HỖ TRỢ VNPAY
+
+Email: support@vnpay.vn
+Hotline: 1900 55 55 77
+
+Nội dung email:
+"Chào VNPay,
+Tôi đang phát triển website thương mại điện tử và muốn tích hợp
+VNPay. Tôi gặp lỗi khi đăng ký Sandbox tại 
+https://sandbox.vnpayment.vn/devreg/
+
+Lỗi: Quá trình kiểm tra mail xảy ra lỗi
+
+Vui lòng hỗ trợ tôi đăng ký tài khoản Sandbox để test.
+
+Email: [your-email@gmail.com]
+Tên dự án: Shop Đồng Hồ Online
+
+Cảm ơn!"
+
+───────────────────────────────────────────────────────────────
+
+🎯 GIẢI PHÁP 3: THỬ TRANG ĐĂNG KÝ KHÁC
+
+Thử link đăng ký khác của VNPay:
+https://sandbox.vnpayment.vn/merchant/
+
+Hoặc:
+https://vnpay.vn/dang-ky-merchant/
+
+───────────────────────────────────────────────────────────────
+
+🎯 GIẢI PHÁP 4: DÙNG MOCK/FAKE PAYMENT (TẠM THỜI)
+
+Tạo chế độ test không cần VNPay thật:
+
+Trong appsettings.json thêm:
+{
+  "Payment": {
+    "Mode": "Test"
+  }
+}
+
+Trong CheckoutController:
+if (configuration["Payment:Mode"] == "Test")
+{
+    // Giả lập thanh toán thành công
+    return RedirectToAction("PaymentSuccess");
+}
+
+───────────────────────────────────────────────────────────────
+
+✅ KHUYẾN NGHỊ: DÙNG THÔNG TIN DEMO
+
+Hãy dùng thông tin này để test ngay:
+
+TMN Code:     DEMOMERCHANT
+Hash Secret:  RAOEXHYVSDDIIENYWSLDIIZTANXUXZFJ
+
+Sau khi test xong, khi cần deploy thật, hãy:
+1. Liên hệ VNPay qua hotline
+2. Đăng ký merchant chính thức
+3. Nhận TMN Code và Hash Secret thật
+
+═══════════════════════════════════════════════════════════════

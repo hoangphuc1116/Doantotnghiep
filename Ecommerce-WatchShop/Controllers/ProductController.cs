@@ -17,10 +17,12 @@ namespace Ecommerce_WatchShop.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? search, string? categories = "", string? brands = "", double? minPrice = null, double? maxPrice = null, int page = 1, int? gender = null)
+        public async Task<IActionResult> Index(string? search, string? categories = "", string? brands = "", double? minPrice = null, double? maxPrice = null, int page = 1, List<int>? attributeValues = null)
         {
             var pageSize = 5;
-            var products = _context.SanPhams.AsQueryable();
+            var products = _context.SanPhams
+                .Include(p => p.SanPhamThuocTinhs)
+                .AsQueryable();
 
             // Lọc theo tìm kiếm
             if (!string.IsNullOrEmpty(search))
@@ -53,24 +55,14 @@ namespace Ecommerce_WatchShop.Controllers
                 products = products.Where(p => p.Gia <= maxPrice.Value);
             }
 
-            // Lọc theo giới tính
-            if (gender.HasValue)
+            // Lọc theo thuộc tính
+            if (attributeValues != null && attributeValues.Any())
             {
-                var genderString = gender switch
-                {
-                    1 => "Nam",
-                    2 => "Nữ",
-                    3 => "Unisex",
-                    _ => null
-                };
-                if (genderString != null)
-                {
-                    products = products.Where(p => p.GioiTinh == genderString);
-                }
+                products = products.Where(p => p.SanPhamThuocTinhs.Any(pt => attributeValues.Contains(pt.MaGiaTri)));
             }
 
             // Lấy tổng số sản phẩm sau khi áp dụng các bộ lọc
-            var totalProducts = await products.CountAsync();
+            var totalProducts = await products.Where(p => p.DaXoa == 0 && p.TrangThai == 1).CountAsync();
             var totalPages = (int)Math.Ceiling(totalProducts / (double)pageSize);
 
             // Lấy các sản phẩm cho trang hiện tại, sắp xếp theo NgayTao giảm dần
@@ -100,6 +92,14 @@ namespace Ecommerce_WatchShop.Controllers
                 .OrderBy(s => s.ThuTuHienThi)
                 .ToListAsync();
             ViewBag.Banners = banners;
+
+            // Lấy danh sách thuộc tính và giá trị để hiển thị filter
+            var attributes = await _context.ThuocTinhSanPhams
+                .Where(a => a.HienThi)
+                .Include(a => a.GiaTriThuocTinhs)
+                .OrderBy(a => a.ThuTuHienThi)
+                .ToListAsync();
+            ViewBag.Attributes = attributes;
 
             var viewModel = new PagedProductListVM
             {

@@ -1,0 +1,107 @@
+═══════════════════════════════════════════════════════════════
+                    TÀI KHOẢN MẶC ĐỊNH
+═══════════════════════════════════════════════════════════════
+
+✅ ĐÃ THÊM DỮ LIỆU:
+
+1. VAI TRÒ (VaiTro):
+   ├─ Khách hàng (MaVaiTro = 1)
+   └─ Admin (MaVaiTro = 2)
+
+2. TÀI KHOẢN ADMIN:
+   ┌─────────────────────────────────────┐
+   │ Username: admin                     │
+   │ Password: admin123                  │
+   │ Vai trò:  Admin                     │
+   │ Email:    admin@laptopshop.com      │
+   │ SĐT:      0987654321                │
+   └─────────────────────────────────────┘
+
+3. TÀI KHOẢN USER MẪU:
+   ┌─────────────────────────────────────┐
+   │ Username: user                      │
+   │ Password: user123                   │
+   │ Vai trò:  Khách hàng                │
+   │ Họ tên:   Nguyễn Văn A              │
+   │ Email:    user@example.com          │
+   │ SĐT:      0123456789                │
+   │ Địa chỉ:  123 Đường ABC, Q1, HCM    │
+   │ Ngày sinh: 01/01/1990               │
+   └─────────────────────────────────────┘
+
+───────────────────────────────────────────────────────────────
+
+🔐 PHÂN QUYỀN:
+
+Admin (MaVaiTro = 2):
+  ✓ Truy cập trang quản trị (/Areas/Admin)
+  ✓ Quản lý sản phẩm, đơn hàng, khách hàng
+  ✓ Quản lý banner, slider, blog
+  ✓ Xem báo cáo, thống kê
+
+Khách hàng (MaVaiTro = 1):
+  ✓ Mua sắm sản phẩm
+  ✓ Quản lý giỏ hàng
+  ✓ Xem lịch sử đơn hàng
+  ✓ Cập nhật thông tin cá nhân
+  ✓ Yêu thích sản phẩm
+  ✓ Đánh giá, bình luận
+
+───────────────────────────────────────────────────────────────
+
+🚀 CÁCH SỬ DỤNG:
+
+1. Cập nhật database:
+   .\update-database.ps1
+
+2. Chạy ứng dụng:
+   dotnet run
+
+3. Đăng nhập:
+   - Trang chủ: Click icon đăng nhập
+   - Admin: Truy cập /Areas/Admin
+
+4. Đổi mật khẩu:
+   - Sau khi đăng nhập lần đầu
+   - Vào trang cá nhân để đổi mật khẩu
+
+───────────────────────────────────────────────────────────────
+
+⚠️ LƯU Ý BẢO MẬT:
+
+1. ĐỔI MẬT KHẨU NGAY:
+   - Mật khẩu mặc định rất yếu
+   - Đổi ngay sau lần đăng nhập đầu tiên
+
+2. TRONG MÔI TRƯỜNG PRODUCTION:
+   - Xóa tài khoản mẫu
+   - Sử dụng mật khẩu mạnh
+   - Bật xác thực 2 yếu tố (nếu có)
+   - Hash mật khẩu (hiện tại chưa hash)
+
+3. KHUYẾN NGHỊ:
+   - Implement password hashing (BCrypt, PBKDF2)
+   - Thêm validation mật khẩu mạnh
+   - Thêm CAPTCHA cho form đăng nhập
+   - Log các hoạt động admin
+
+───────────────────────────────────────────────────────────────
+
+📝 CẤU TRÚC DATABASE:
+
+VaiTro:
+  - MaVaiTro (PK)
+  - Loai (varchar)
+
+TaiKhoan:
+  - MaTaiKhoan (PK)
+  - TenDangNhap (varchar)
+  - MatKhau (varchar)
+  - MaVaiTro (FK -> VaiTro)
+
+KhachHang:
+  - MaKhachHang (PK)
+  - MaTaiKhoan (FK -> TaiKhoan)
+  - HoTen, Email, SoDienThoai, DiaChi...
+
+═══════════════════════════════════════════════════════════════

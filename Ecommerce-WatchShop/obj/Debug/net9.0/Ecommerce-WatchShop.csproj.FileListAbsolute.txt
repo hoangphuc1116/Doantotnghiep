@@ -260,7 +260,6 @@ D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\comp
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\bcumhsktqa-wydrkzuaqv.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\37dsyxqo8m-ckfvdb5ihr.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\d1861mrnqv-2epyygns03.gz
-D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\n1q0dpp4fl-u0bl6jbnsd.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\49zatv5xd8-17a351fyz5.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\eokd8bieuv-mel00k9ltn.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\o2xjo4s2c1-herfnccxeb.gz
@@ -2485,4 +2484,5 @@ D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\Ecom
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\Ecommerce-WatchShop.genruntimeconfig.cache
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\ref\Ecommerce-WatchShop.dll
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\bbuz7sw30s-ir4ahj0a03.gz
+D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\compressed\n1q0dpp4fl-7uv7kng43b.gz
 D:\DoAnWEB\TaiLieu\Ecommerce-WatchShop\Ecommerce-WatchShop\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

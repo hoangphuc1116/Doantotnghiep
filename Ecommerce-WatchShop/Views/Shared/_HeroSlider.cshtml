@@ -12,7 +12,7 @@
                 <div class="hero-single-slider-item swiper-slide">
                     <!-- Hero Slider Image -->
                     <div class="hero-slider-bg">
-                        <img src="~/Images/ricky-kharawala-Yka2yhGJwjc-unsplash 1.png" alt="@slider.TieuDe" style="object-fit: cover">
+                        <img src="@(slider.HinhAnh.StartsWith("/") ? slider.HinhAnh : "/Images/" + slider.HinhAnh)" alt="@slider.TieuDe" style="object-fit: cover">
                     </div>
                     <!-- Hero Slider Content -->
                     <div class="hero-slider-wrapper">

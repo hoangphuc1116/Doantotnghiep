@@ -57,16 +57,44 @@ namespace Ecommerce_WatchShop.Areas.Admin.Controllers
                 return RedirectToAction("Details", new { id = id });
             }
 
+            var oldStatus = bill.TrangThai;
             bill.TrangThai = status;
+
+            // Nếu chuyển sang trạng thái Đã hủy (4), hoàn trả số lượng sản phẩm
+            if (status == 4 && oldStatus != 4)
+            {
+                var orderDetails = await _context.ChiTietHoaDons
+                    .Where(ct => ct.MaHoaDon == id)
+                    .ToListAsync();
+
+                foreach (var detail in orderDetails)
+                {
+                    var product = await _context.SanPhams.FindAsync(detail.MaSanPham);
+                    if (product != null)
+                    {
+                        product.SoLuong += detail.SoLuong; // Hoàn trả số lượng
+                        _context.SanPhams.Update(product);
+                    }
+                }
+
+                // Lưu lý do hủy nếu chưa có
+                if (string.IsNullOrEmpty(bill.YeuCauHuy))
+                {
+                    bill.YeuCauHuy = "Admin hủy đơn hàng";
+                    bill.NgayYeuCauHuy = DateTime.Now;
+                    bill.DaYeuCauHuy = true;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             string statusText = status switch
             {
-                0 => "Đã hủy",
-                1 => "Chờ xác nhận",
-                2 => "Đã xác nhận",
-                3 => "Đang xử lý",
-                4 => "Hoàn thành",
+                0 => "Chờ xác nhận",
+                1 => "Đã xác nhận",
+                2 => "Đang giao",
+                3 => "Hoàn thành",
+                4 => "Đã hủy",
                 _ => "Không xác định"
             };
 

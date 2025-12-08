@@ -23,8 +23,6 @@ public partial class SanPham
     [Required(ErrorMessage = "Thương hiệu là bắt buộc.")]
     public int MaThuongHieu { get; set; }
 
-    public string? GioiTinh { get; set; }
-
     [Required(ErrorMessage = "Giá là bắt buộc.")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0.")]
     public double Gia { get; set; }
@@ -70,4 +68,5 @@ public partial class SanPham
     public virtual ICollection<BinhLuanSanPham> BinhLuanSanPhams { get; set; } = new List<BinhLuanSanPham>();
     public virtual ICollection<HinhAnhSanPham> HinhAnhSanPhams { get; set; } = new List<HinhAnhSanPham>();
     public virtual ICollection<DanhGiaSanPham> DanhGiaSanPhams { get; set; } = new List<DanhGiaSanPham>();
+    public virtual ICollection<SanPhamThuocTinh> SanPhamThuocTinhs { get; set; } = new List<SanPhamThuocTinh>();
 }

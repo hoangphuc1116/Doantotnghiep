@@ -55,6 +55,12 @@ public partial class DongHoContext : DbContext
 
     public required virtual DbSet<Slider> Sliders { get; set; }
 
+    public required virtual DbSet<ThuocTinhSanPham> ThuocTinhSanPhams { get; set; }
+
+    public required virtual DbSet<GiaTriThuocTinh> GiaTriThuocTinhs { get; set; }
+
+    public required virtual DbSet<SanPhamThuocTinh> SanPhamThuocTinhs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<SanPham>(entity =>
