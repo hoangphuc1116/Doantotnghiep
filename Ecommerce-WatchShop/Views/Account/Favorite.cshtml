@@ -58,7 +58,7 @@
                                             <tr>
                                                 <td class="product_thumb">
                                                     <a asp-controller="Product" asp-action="ProductDetail" asp-route-slug="@item.Slug">
-                                                        <img src="@Url.Content("~/images/" + (item.Image ?? "default-image.jpg"))" alt="@item.Name" onerror="this.src='/images/default-image.jpg';" />
+                                                        <img src="@Url.Content(item.Image)" alt="@item.Name" onerror="this.src='/images/default-image.jpg';" style="max-width: 100px; height: auto;" />
                                                     </a>
                                                 </td>
                                                 <td class="product_name">
@@ -119,15 +119,20 @@
 
             $('.add-to-cart').click(function (e) {
                 e.preventDefault();
+                e.stopPropagation(); // Ngăn event bubbling
                 var $this = $(this);
                 var slug = $this.data('slug');
                 var quantity = 1;
+
+                // Disable button để tránh click nhiều lần
+                $this.prop('disabled', true);
 
                 $.ajax({
                     url: '@Url.Action("AddToCart", "Cart")',
                     type: 'POST',
                     data: { slug: slug, quantity: quantity },
                     success: function (result) {
+                        $this.prop('disabled', false);
                         if (result.success) {
                             Toastify({
                                 text: result.message,
@@ -151,6 +156,7 @@
                         }
                     },
                     error: function () {
+                        $this.prop('disabled', false);
                         Toastify({
                             text: 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.',
                             duration: 3000,

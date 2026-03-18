@@ -203,40 +203,80 @@ namespace Ecommerce_WatchShop.Controllers
 
             return View(viewModel); // Trả về View
         }
+        // Test action để kiểm tra sản phẩm trong database
+        [HttpGet]
+        [Route("TestProducts")]
+        public async Task<IActionResult> TestProducts()
+        {
+            var products = await _context.SanPhams
+                .Select(p => new { p.MaSanPham, p.TenSanPham, p.Slug })
+                .ToListAsync();
+            return Json(products);
+        }
+
         [HttpPost]
-        [Route("ProductDetail/{id}/AddReview")]
-        public IActionResult AddReview(int id, string content, int rating)
+        [Route("ProductDetail/{slug}/AddReview")]
+        public async Task<IActionResult> AddReview(string slug, string content, int rating)
         {
             var customerIdClaim = User.Claims.FirstOrDefault(c => c.Type == "MaKhachHang");
             int? customerId = customerIdClaim != null ? int.Parse(customerIdClaim.Value) : (int?)null;
-            // Kiểm tra sản phẩm tồn tại
-            var product = _context.SanPhams.Find(id);
+            
+            // Tìm sản phẩm theo slug
+            var product = await _context.SanPhams
+                .Where(p => p.Slug == slug && p.DaXoa == 0)
+                .Select(p => new { p.MaSanPham, p.Slug })
+                .FirstOrDefaultAsync();
+                
             if (product == null)
             {
-                return NotFound();
+                TempData["Error"] = "Không tìm thấy sản phẩm";
+                return RedirectToAction("Index");
             }
 
+            // Kiểm tra xem khách hàng đã đánh giá sản phẩm này chưa
+            var existingRating = await _context.DanhGiaSanPhams
+                .FirstOrDefaultAsync(r => r.MaSanPham == product.MaSanPham && r.MaKhachHang == customerId);
+
+            if (existingRating != null)
+            {
+                // Cập nhật đánh giá cũ
+                existingRating.DiemDanhGia = rating;
+            }
+            else
+            {
+                // Thêm đánh giá mới
+                var productRating = new DanhGiaSanPham
+                {
+                    MaSanPham = product.MaSanPham,
+                    MaKhachHang = customerId,
+                    DiemDanhGia = rating
+                };
+                await _context.DanhGiaSanPhams.AddAsync(productRating);
+            }
+
+            // Thêm bình luận
             var comment = new BinhLuanSanPham
             {
-
-                MaSanPham = id,
+                MaSanPham = product.MaSanPham,
                 MaKhachHang = customerId,
                 NoiDung = content,
                 NgayTao = DateTime.Now
             };
+            await _context.BinhLuanSanPhams.AddAsync(comment);
 
-            var productRating = new DanhGiaSanPham
+            try
             {
-                MaSanPham = id,
-                MaKhachHang = customerId,
-                DiemDanhGia = rating
-            };
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đánh giá của bạn đã được gửi thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.";
+                // Log chi tiết lỗi để debug
+                Console.WriteLine($"Error: {ex.Message}, MaSanPham: {product.MaSanPham}");
+            }
 
-            _context.BinhLuanSanPhams.Add(comment);
-            _context.DanhGiaSanPhams.Add(productRating);
-            _context.SaveChanges();
-
-            return RedirectToAction("ProductDetail", new { slug = product.Slug }); // Quay lại trang chi tiết sản phẩm
+            return RedirectToAction("ProductDetail", new { slug = product.Slug });
         }
         //public IActionResult AddToCart([FromBody] CartRequest request)
         //{

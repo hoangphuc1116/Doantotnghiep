@@ -137,5 +137,33 @@ public partial class DongHoContext : DbContext
             .WithMany()
             .HasForeignKey(k => k.MaXa)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Cấu hình cho BinhLuanSanPham
+        modelBuilder.Entity<BinhLuanSanPham>(entity =>
+        {
+            entity.HasKey(b => b.MaBinhLuan);
+            entity.HasOne(b => b.SanPham)
+                  .WithMany(p => p.BinhLuanSanPhams)
+                  .HasForeignKey(b => b.MaSanPham)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(b => b.KhachHang)
+                  .WithMany()
+                  .HasForeignKey(b => b.MaKhachHang)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Cấu hình cho DanhGiaSanPham
+        modelBuilder.Entity<DanhGiaSanPham>(entity =>
+        {
+            entity.HasKey(d => d.MaDanhGia);
+            entity.HasOne(d => d.SanPham)
+                  .WithMany(p => p.DanhGiaSanPhams)
+                  .HasForeignKey(d => d.MaSanPham)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.KhachHang)
+                  .WithMany()
+                  .HasForeignKey(d => d.MaKhachHang)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }

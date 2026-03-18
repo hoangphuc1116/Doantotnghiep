@@ -67,14 +67,13 @@ namespace Ecommerce_WatchShop.Migrations
                     b.Property<string>("NoiDung")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SanPhamMaSanPham")
-                        .HasColumnType("int");
-
                     b.HasKey("MaBinhLuan");
 
                     b.HasIndex("KhachHangMaKhachHang");
 
-                    b.HasIndex("SanPhamMaSanPham");
+                    b.HasIndex("MaKhachHang");
+
+                    b.HasIndex("MaSanPham");
 
                     b.ToTable("BinhLuanSanPhams");
                 });
@@ -152,14 +151,13 @@ namespace Ecommerce_WatchShop.Migrations
                     b.Property<int>("MaSanPham")
                         .HasColumnType("int");
 
-                    b.Property<int>("SanPhamMaSanPham")
-                        .HasColumnType("int");
-
                     b.HasKey("MaDanhGia");
 
                     b.HasIndex("KhachHangMaKhachHang");
 
-                    b.HasIndex("SanPhamMaSanPham");
+                    b.HasIndex("MaKhachHang");
+
+                    b.HasIndex("MaSanPham");
 
                     b.ToTable("DanhGiaSanPhams");
                 });
@@ -856,13 +854,18 @@ namespace Ecommerce_WatchShop.Migrations
 
             modelBuilder.Entity("Ecommerce_WatchShop.Models.BinhLuanSanPham", b =>
                 {
-                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", "KhachHang")
+                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", null)
                         .WithMany("ProductComments")
                         .HasForeignKey("KhachHangMaKhachHang");
 
+                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", "KhachHang")
+                        .WithMany()
+                        .HasForeignKey("MaKhachHang")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Ecommerce_WatchShop.Models.SanPham", "SanPham")
                         .WithMany("BinhLuanSanPhams")
-                        .HasForeignKey("SanPhamMaSanPham")
+                        .HasForeignKey("MaSanPham")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -892,13 +895,18 @@ namespace Ecommerce_WatchShop.Migrations
 
             modelBuilder.Entity("Ecommerce_WatchShop.Models.DanhGiaSanPham", b =>
                 {
-                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", "KhachHang")
+                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", null)
                         .WithMany("ProductRatings")
                         .HasForeignKey("KhachHangMaKhachHang");
 
+                    b.HasOne("Ecommerce_WatchShop.Models.KhachHang", "KhachHang")
+                        .WithMany()
+                        .HasForeignKey("MaKhachHang")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Ecommerce_WatchShop.Models.SanPham", "SanPham")
                         .WithMany("DanhGiaSanPhams")
-                        .HasForeignKey("SanPhamMaSanPham")
+                        .HasForeignKey("MaSanPham")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
